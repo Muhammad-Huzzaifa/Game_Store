@@ -80,28 +80,13 @@ DATABASES = {
         'USER': 'sqladmin',
         'PASSWORD': 'game-store1',
         'HOST': 'game-store.database.windows.net',
-        'PORT': '1433',
+        'PORT': '',
         'OPTIONS': {
             'driver': 'ODBC Driver 18 for SQL Server',
             'extra_params': 'Encrypt=yes;TrustServerCertificate=yes;',
         },
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'mssql',
-#         'NAME': 'game-store',
-#         'USER': 'sqladmin',
-#         'PASSWORD': 'game-store1',
-#         'HOST': 'game-store.database.windows.net',
-#         'PORT': '1433',
-#         'OPTIONS': {
-#             'driver': 'ODBC Driver 18 for SQL Server',
-#             'extra_params': 'Encrypt=yes;TrustServerCertificate=yes;',
-#         },
-#     }
-# }
 
 
 # Password validation
