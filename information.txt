@@ -7,3 +7,5 @@ Server name: game-store.database.windows.net
 Authentication: SQL Server Authentication
 Login: sqladmin
 Password: game-store1
+
+3. Super User is, name: admin, password: admin
