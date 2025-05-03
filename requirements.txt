@@ -1,0 +1,4 @@
+# Need to download ODBC Driver for SQL Server SDK from https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+django
+pyodbc
+mssql-django
