@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,15 +80,15 @@ WSGI_APPLICATION = 'Game_Store.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mssql',
-        'NAME': 'game-store',
-        'USER': 'sqladmin',
-        'PASSWORD': 'game-store1',
-        'HOST': 'game-store.database.windows.net',
-        'PORT': '',
+        'ENGINE': os.getenv('DB_ENGINE', 'mssql'),
+        'NAME': os.getenv('DB_NAME', ''),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', ''),
         'OPTIONS': {
-            'driver': 'ODBC Driver 18 for SQL Server',
-            'extra_params': 'Encrypt=yes;TrustServerCertificate=yes;',
+            'driver': os.getenv('DB_DRIVER', 'ODBC Driver 18 for SQL Server'),
+            'extra_params': os.getenv('DB_EXTRA_PARAMS', 'Encrypt=yes;TrustServerCertificate=yes;'),
         },
     }
 }

@@ -43,28 +43,24 @@ pip install -r requirements.txt
 
 ### 2. Database Configuration
 
-The application connects to an Azure SQL Database. You need to install the ODBC Driver:
+The application connects to an Azure SQL Database. You need to install the ODBC Driver and set up environment variables:
 
 1. Download and install the ODBC Driver for SQL Server from:
    https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
 
-2. Database connection parameters (configured in settings.py):
-   ```py
-   DATABASES = {
-        'default': {
-            'ENGINE': 'mssql',
-            'NAME': '', # Your Database Name
-            'USER': '', # Your Database Username
-            'PASSWORD': '', # Your Database Password
-            'HOST': '', # Your Database Server
-            'PORT': '', # Leave Empty
-            'OPTIONS': {
-                'driver': 'ODBC Driver 18 for SQL Server', # You can change version according to your installation
-                'extra_params': 'Encrypt=yes;TrustServerCertificate=yes;', # TrustServerCertificate=yes in development and TrustServerCertificate=no in production
-            },
-        }
-    }
-    ```
+2. Create a `.env` file in the project's root directory with the following variables:
+   ```
+   DB_ENGINE=mssql
+   DB_NAME=your-database-name
+   DB_USER=your-username
+   DB_PASSWORD=your-password
+   DB_HOST=your-server.database.windows.net
+   DB_PORT=
+   DB_DRIVER=ODBC Driver 18 for SQL Server
+   DB_EXTRA_PARAMS=Encrypt=yes;TrustServerCertificate=yes; # You can use TrustServerCertificate=yes in development and TrustServerCertificate=no in in production.
+   ```
+
+3. Make sure your IP address is allowed in the Azure SQL Server firewall settings.
 
 ### 3. Run Migrations
 

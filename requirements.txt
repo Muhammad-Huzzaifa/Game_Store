@@ -1,3 +1,4 @@
 django
 pyodbc
 mssql-django
+python-dotenv
