@@ -4,26 +4,26 @@ from django.shortcuts import render
 
 def index(request):
     """Renders the index.html page."""
-    return render(request, 'index.html')
+    return render(request, 'store/index.html')
 
 def author(request):
     """Renders the author.html page."""
-    return render(request, 'author.html')
+    return render(request, 'store/author.html')
 
 def cart(request):
     """Renders the cart.html page."""
-    return render(request, 'cart.html')
+    return render(request, 'store/cart.html')
 
 def contact(request):
     """Renders the contact.html page."""
-    return render(request, 'contact.html')
+    return render(request, 'store/contact.html')
 
 def shop(request):
     """Renders the shop.html page."""
-    return render(request, 'shop.html')
+    return render(request, 'store/shop.html')
 
 def single(request):
     """Renders the single.html page."""
     # Note: This might need modification later if you want to display
     # details for a specific game based on a URL parameter.
-    return render(request, 'single.html')
+    return render(request, 'store/single.html')
