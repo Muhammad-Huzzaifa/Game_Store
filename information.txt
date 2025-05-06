@@ -1,11 +1,13 @@
-1. You need to install ODBC Driver for SQL Server SDK from 
-https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+1. Create .env file inside Game_Store/ (root) and paste this database connection 
+DB_ENGINE=mssql
+DB_NAME=game-store
+DB_USER=sqladmin
+DB_PASSWORD=game-store1
+DB_HOST=game-store.database.windows.net
+DB_PORT=
+DB_DRIVER=ODBC Driver 18 for SQL Server
+DB_EXTRA_PARAMS=Encrypt=yes;TrustServerCertificate=yes;
 
-2. (Optional) For SSMS connection,
-Server type: Database Engine
-Server name: game-store.database.windows.net
-Authentication: SQL Server Authentication
-Login: sqladmin
-Password: game-store1
-
-3. Super User is, name: admin, password: admin
+2. SuperUser is created already as,
+username: admin
+password: admin
