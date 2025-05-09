@@ -1,0 +1,106 @@
+.profile-dropdown {
+    min-width: 200px;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.profile-info {
+    text-align: center;
+}
+
+.profile-info h6 {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.profile-dropdown .dropdown-item {
+    padding: 8px 20px;
+    color: #333;
+    transition: background-color 0.2s;
+}
+
+.profile-dropdown .dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.profile-dropdown form {
+    margin: 0;
+}
+
+.profile-dropdown button.dropdown-item {
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.login .dropdown-toggle::after {
+    display: none;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop {
+    display: none;
+}
+
+.modal-dialog {
+    z-index: 1056 !important;
+}
+
+.profile-dropdown {
+    z-index: 1055;
+}
+
+/* Ensure modal is always on top */
+.modal.show {
+    display: block !important;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1055;
+}
+
+/* Message notifications */
+.message-popup {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    z-index: 1060;
+    animation: slideIn 0.5s ease-out;
+}
+
+.message-popup.error {
+    background-color: #e21e21;
+    color: #fff;
+}
+
+.message-popup.success {
+    background-color: #ffffff;
+    color: #1d1d1d;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.message-content {
+    display: flex;
+    align-items: center;
+}
+
+.message-text {
+    margin-right: 10px;
+}

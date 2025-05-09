@@ -11,6 +11,9 @@ class DiscountCodes(models.Model):
     valid_to = models.DateTimeField()
     is_active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return str(self.discount_code_id)
+    
     class Meta:
         db_table = 'discount_codes'
         constraints = [
@@ -20,8 +23,6 @@ class DiscountCodes(models.Model):
                     name='valid_to_after_valid_from'
             ),
         ]
-    def __str__(self):
-        return str(self.discount_code_id)
 
         
 class Games(models.Model):
@@ -37,23 +38,24 @@ class Games(models.Model):
     cover_image = models.CharField(max_length=500)
     is_active = models.BooleanField(default=True)
     discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
-    discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
 
     def __str__(self):
         return str(self.game_id)
+    
     class Meta:
         db_table = 'games'
+
 
 class Inventory(models.Model):
     inventory_id = models.AutoField(primary_key=True)
     game = models.OneToOneField(Games, on_delete=models.CASCADE, db_column='game_id')
     stock_quantity = models.IntegerField(validators=[MinValueValidator(0)])
 
-    class Meta:
-        db_table = 'inventory'
-    
     def __str__(self):
         return str(self.inventory_id)
+    
+    class Meta:
+        db_table = 'inventory'
 
 
 class Carts(models.Model):
@@ -61,11 +63,11 @@ class Carts(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
 
-    class Meta:
-        db_table = 'carts'
-    
     def __str__(self):
         return str(self.cart_id)
+    
+    class Meta:
+        db_table = 'carts'
 
 
 class CartItems(models.Model):
@@ -74,12 +76,12 @@ class CartItems(models.Model):
     game = models.ForeignKey(Games, on_delete=models.CASCADE, db_column='game_id')
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
 
+    def __str__(self):
+        return str(self.cart_item_id)
+    
     class Meta:
         db_table = 'cart_items'
         unique_together = (('cart', 'game'),)
-    
-    def __str__(self):
-        return str(self.cart_item_id)
 
 
 class Orders(models.Model):
@@ -89,6 +91,9 @@ class Orders(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     status = models.CharField(max_length=50)
 
+    def __str__(self):
+        return str(self.order_id)
+    
     class Meta:
         db_table = 'orders'
         constraints = [
@@ -98,9 +103,6 @@ class Orders(models.Model):
                     name='status_check'
             ),
         ]
-    
-    def __str__(self):
-        return str(self.order_id)
 
 
 class OrderItems(models.Model):
@@ -110,12 +112,13 @@ class OrderItems(models.Model):
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
     price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
 
+    def __str__(self):
+        return str(self.order_item_id)
+    
     class Meta:
         db_table = 'order_items'
         unique_together = (('order', 'game'),)
 
-    def __str__(self):
-        return str(self.order_item_id)
 
 class Payments(models.Model):
     payment_id = models.AutoField(primary_key=True)
@@ -124,6 +127,9 @@ class Payments(models.Model):
     payment_status = models.CharField(max_length=50)
     payment_method = models.CharField(max_length=50)
 
+    def __str__(self):
+        return str(self.payment_id)
+    
     class Meta:
         db_table = 'payments'
         constraints = [
@@ -138,6 +144,3 @@ class Payments(models.Model):
                     name='payment_method_check'
             ),
         ]
-    
-    def __str__(self):
-        return str(self.payment_id)
