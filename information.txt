@@ -1,0 +1,11 @@
+1. You need to install ODBC Driver for SQL Server SDK from 
+https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
+
+2. (Optional) For SSMS connection,
+Server type: Database Engine
+Server name: game-store.database.windows.net
+Authentication: SQL Server Authentication
+Login: sqladmin
+Password: game-store1
+
+3. Super User is, name: admin, password: admin
