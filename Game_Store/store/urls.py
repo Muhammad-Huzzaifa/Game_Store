@@ -10,5 +10,5 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
     path('shop/', views.shop, name='shop'),
     path('single/', views.single, name='single'), # Basic single page URL
-    path('login_signup/', views.login_signup, name='login_signup'),
+    # Add more specific URLs later, e.g., path('game/<int:game_id>/', views.single, name='single_game'),
 ]
