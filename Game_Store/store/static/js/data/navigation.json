@@ -1,0 +1,27 @@
+[
+  {
+    "id" : 1,
+    "name" : "Home",
+    "link" : "index"
+  },
+  {
+    "id" : 2,
+    "name" : "Shop",
+    "link" : "shop"
+  },
+  {
+    "id" : 3,
+    "name" : "Contact",
+    "link" : "contact"
+  },
+  {
+    "id" : 4,
+    "name" : "Documentation",
+    "link" : "docs.pdf"
+  },
+  {
+    "id" : 5,
+    "name" : "Author",
+    "link" : "author.html"
+  }
+]
