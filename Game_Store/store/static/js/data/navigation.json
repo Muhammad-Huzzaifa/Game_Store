@@ -2,7 +2,7 @@
   {
     "id" : 1,
     "name" : "Home",
-    "link" : "index"
+    "link" : "/"
   },
   {
     "id" : 2,

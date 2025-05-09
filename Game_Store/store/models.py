@@ -3,52 +3,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 
-class Games(models.Model):
-    game_id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    genre = models.CharField(max_length=100, blank=True, null=True)
-    platform = models.CharField(max_length=100, blank=True, null=True)
-    developer = models.CharField(max_length=100, blank=True, null=True)
-    publisher = models.CharField(max_length=100, blank=True, null=True)
-    release_date = models.DateField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    cover_image = models.CharField(max_length=500)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'games'
-
-
-class Inventory(models.Model):
-    inventory_id = models.AutoField(primary_key=True)
-    game = models.OneToOneField(Games, on_delete=models.CASCADE, db_column='game_id')
-    stock_quantity = models.IntegerField(validators=[MinValueValidator(0)])
-
-    class Meta:
-        db_table = 'inventory'
-
-
-class Carts(models.Model):
-    cart_id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
-
-    class Meta:
-        db_table = 'carts'
-
-
-class CartItems(models.Model):
-    cart_item_id = models.AutoField(primary_key=True)
-    cart = models.ForeignKey(Carts, on_delete=models.CASCADE, db_column='cart_id')
-    game = models.ForeignKey(Games, on_delete=models.CASCADE, db_column='game_id')
-    quantity = models.IntegerField(validators=[MinValueValidator(1)])
-
-    class Meta:
-        db_table = 'cart_items'
-        unique_together = (('cart', 'game'),)
-
-
 class DiscountCodes(models.Model):
     discount_code_id = models.AutoField(primary_key=True)
     code = models.CharField(unique=True, max_length=20)
@@ -66,6 +20,65 @@ class DiscountCodes(models.Model):
                     name='valid_to_after_valid_from'
             ),
         ]
+    def __str__(self):
+        return str(self.discount_code_id)
+
+        
+class Games(models.Model):
+    game_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    genre = models.CharField(max_length=100, blank=True, null=True)
+    platform = models.CharField(max_length=100, blank=True, null=True)
+    developer = models.CharField(max_length=100, blank=True, null=True)
+    publisher = models.CharField(max_length=100, blank=True, null=True)
+    release_date = models.DateField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    cover_image = models.CharField(max_length=500)
+    is_active = models.BooleanField(default=True)
+    discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
+
+    def __str__(self):
+        return str(self.game_id)
+    class Meta:
+        db_table = 'games'
+
+class Inventory(models.Model):
+    inventory_id = models.AutoField(primary_key=True)
+    game = models.OneToOneField(Games, on_delete=models.CASCADE, db_column='game_id')
+    stock_quantity = models.IntegerField(validators=[MinValueValidator(0)])
+
+    class Meta:
+        db_table = 'inventory'
+    
+    def __str__(self):
+        return str(self.inventory_id)
+
+
+class Carts(models.Model):
+    cart_id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+
+    class Meta:
+        db_table = 'carts'
+    
+    def __str__(self):
+        return str(self.cart_id)
+
+
+class CartItems(models.Model):
+    cart_item_id = models.AutoField(primary_key=True)
+    cart = models.ForeignKey(Carts, on_delete=models.CASCADE, db_column='cart_id')
+    game = models.ForeignKey(Games, on_delete=models.CASCADE, db_column='game_id')
+    quantity = models.IntegerField(validators=[MinValueValidator(1)])
+
+    class Meta:
+        db_table = 'cart_items'
+        unique_together = (('cart', 'game'),)
+    
+    def __str__(self):
+        return str(self.cart_item_id)
 
 
 class Orders(models.Model):
@@ -74,7 +87,6 @@ class Orders(models.Model):
     order_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     status = models.CharField(max_length=50)
-    discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
 
     class Meta:
         db_table = 'orders'
@@ -85,6 +97,9 @@ class Orders(models.Model):
                     name='status_check'
             ),
         ]
+    
+    def __str__(self):
+        return str(self.order_id)
 
 
 class OrderItems(models.Model):
@@ -98,6 +113,8 @@ class OrderItems(models.Model):
         db_table = 'order_items'
         unique_together = (('order', 'game'),)
 
+    def __str__(self):
+        return str(self.order_item_id)
 
 class Payments(models.Model):
     payment_id = models.AutoField(primary_key=True)
@@ -120,3 +137,6 @@ class Payments(models.Model):
                     name='payment_method_check'
             ),
         ]
+    
+    def __str__(self):
+        return str(self.payment_id)
