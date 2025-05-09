@@ -93,6 +93,7 @@ DATABASES = {
             'driver': os.getenv('DB_DRIVER', 'ODBC Driver 18 for SQL Server'),
             'extra_params': os.getenv('DB_EXTRA_PARAMS', 'Encrypt=yes;TrustServerCertificate=yes;'),
         },
+        'CONN_MAX_AGE': 60,
     }
 }
 

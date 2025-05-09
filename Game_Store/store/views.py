@@ -1,6 +1,11 @@
 from django.shortcuts import render
 
 # Create your views here.
+def auth(request):
+    """Renders the auth page."""
+    # Note: This might need modification later if you want to display
+    # details for a specific game based on a URL parameter.
+    return render(request, 'store/auth.html')
 
 def index(request):
     """Renders the index.html page."""
@@ -22,9 +27,6 @@ def shop(request):
     """Renders the shop.html page."""
     return render(request, 'store/shop.html')
 
-
-    
-
 def single(request):
     """Renders the single.html page."""
     # Note: This might need modification later if you want to display
@@ -32,8 +34,3 @@ def single(request):
     return render(request, 'store/single.html')
 
 
-def login_signup(request):
-    """Renders the Login/signup page."""
-    # Note: This might need modification later if you want to display
-    # details for a specific game based on a URL parameter.
-    return render(request, 'store/login_signup.html')

@@ -1,0 +1,353 @@
+@font-face {
+    font-family: 'Poppins';
+    src: url('../font/Poppins-Regular.ttf') format('truetype');
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', -apple-system, 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
+    background: #1d1d1d;
+}
+
+.forms-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.section-title {
+	margin-top: 20px;
+	font-family: inherit;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #e21e21;
+}
+
+.forms {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 30px;
+}
+
+.form-wrapper {
+    animation: hideLayer .3s ease-out forwards;
+}
+
+.form-wrapper.is-active {
+    animation: showLayer .3s ease-in forwards;
+}
+
+@keyframes showLayer {
+    50% {
+        z-index: 1;
+    }
+    100% {
+        z-index: 1;
+    }
+}
+
+@keyframes hideLayer {
+    0% {
+        z-index: 1;
+    }
+    49.999% {
+        z-index: 1;
+    }
+}
+
+.switcher {
+    position: relative;
+    cursor: pointer;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0;
+    text-transform: uppercase;
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: .5px;
+    color: #e0dede;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    transform: translateX(0);
+    transition: all .3s ease-out;
+}
+
+.form-wrapper.is-active .switcher-login {
+    color: #fff;
+    transform: translateX(162px);
+}
+
+.form-wrapper.is-active .switcher-signup {
+    color: #fff;
+    transform: translateX(-162px);
+}
+
+.underline {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+    width: 100%;
+    height: 2px;
+}
+
+.underline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: inherit;
+    display: block;
+    width: inherit;
+    height: inherit;
+    background-color: currentColor;
+    transition: transform .2s ease-out;
+}
+
+.switcher-login .underline::before {
+    transform: translateX(101%);
+}
+
+.switcher-signup .underline::before {
+    transform: translateX(-101%);
+}
+
+.form-wrapper.is-active .underline::before {
+    transform: translateX(0);
+}
+
+.form {
+    overflow: hidden;
+    min-width: 450px;
+    margin-top: 50px;
+    padding: 25px 25px;
+    border-radius: 5px;
+    transform-origin: top;
+    background: #fff;
+}
+
+.form-login {
+    animation: hideLogin .3s ease-out forwards;
+}
+
+.form-wrapper.is-active .form-login {
+    animation: showLogin .3s ease-in forwards;
+}
+
+@keyframes showLogin {
+    0% {
+        background: #2c2c2c;
+        transform: translate(40%, 10px);
+        box-shadow: 0 3px 10px #616161;
+    }
+    50% {
+        transform: translate(0, 0);
+        box-shadow: 0 3px 10px #616161;
+    }
+    100% {
+        background-color: #fff;
+        transform: translate(35%, -20px);
+        box-shadow: 0 3px 10px #616161;
+    }
+}
+
+@keyframes hideLogin {
+    0% {
+        background-color: #fff;
+        transform: translate(35%, -20px);
+        box-shadow: 0 3px 10px #e21e21;
+    }
+    50% {
+        transform: translate(0, 0);
+        box-shadow: 0 3px 10px #e21e21;
+    }
+    100% {
+        background: #2c2c2c;
+        transform: translate(40%, 10px);
+        box-shadow: 0 3px 10px #e21e21;
+    }
+}
+
+.form-signup {
+    animation: hideSignup .3s ease-out forwards;
+}
+
+.form-wrapper.is-active .form-signup {
+    animation: showSignup .3s ease-in forwards;
+}
+
+@keyframes showSignup {
+    0% {
+        background: #2c2c2c;
+        transform: translate(-40%, 10px) scaleY(.8);
+        box-shadow: 0 3px 10px #616161;
+    }
+    50% {
+        transform: translate(0, 0) scaleY(.8);
+        box-shadow: 0 3px 10px #616161;
+    }
+    100% {
+        background-color: #fff;
+        transform: translate(-35%, -20px) scaleY(1);
+        box-shadow: 0 3px 10px #616161;
+    }
+}
+
+@keyframes hideSignup {
+    0% {
+        background-color: #fff;
+        transform: translate(-35%, -20px) scaleY(1);
+        box-shadow: 0 3px 10px #e21e21;
+    }
+    50% {
+        transform: translate(0, 0) scaleY(.8);
+        box-shadow: 0 3px 10px #e21e21;
+    }
+    100% {
+        background: #2c2c2c;
+        transform: translate(-40%, 10px) scaleY(.8);
+        box-shadow: 0 3px 10px #e21e21;
+    }
+}
+
+.form fieldset {
+    position: relative;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transition: all .3s ease-out;
+}
+
+.form-login fieldset {
+    transform: translateX(-50%);
+}
+
+.form-signup fieldset {
+    transform: translateX(50%);
+}
+
+.form-wrapper.is-active fieldset {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity .4s ease-in, transform .35s ease-in;
+}
+
+.form legend {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+}
+
+.input-block {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.input-block label {
+    font-size: 14px;
+    color: #1d1d1d;
+}
+
+.input-block input {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding-right: 15px;
+    padding-left: 15px;
+    font-size: 16px;
+    line-height: 40px;
+    color: #000;
+    background: #e0dede;
+    border: 1px solid #1d1d1d;
+    border-radius: 2px;
+}
+
+.form [type='submit'] {
+    opacity: 0;
+    display: block;
+    min-width: 120px;
+    margin: 30px auto 10px;
+    font-size: 18px;
+    line-height: 40px;
+    border-radius: 25px;
+    border: none;
+    transition: all .3s ease-out;
+}
+
+.form-wrapper.is-active .form [type='submit'] {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all .4s ease-in;
+}
+
+.btn-login {
+    color: #fff;
+    background: #e21e21;
+    transform: translateX(-30%);
+}
+
+.btn-signup {
+    color: #fff;
+    background: #e21e21;
+    transform: translateX(30%);
+}
+
+.btn-login:hover {
+	color: #2c2c2c;
+}
+
+.btn-signup:hover {
+	color: #2c2c2c;
+}
+
+.error-popup {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background-color: #e21e21;
+    color: #fff;
+    border-radius: 5px;
+    z-index: 1000;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.error-content {
+    display: flex;
+    align-items: center;
+}
+
+.error-message {
+    margin-right: 10px;
+}
+
+/* Adjusting form height for signup */
+.form-signup {
+    max-height: 800px;
+    overflow-y: auto;
+}
