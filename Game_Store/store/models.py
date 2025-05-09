@@ -3,6 +3,25 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 
+class DiscountCodes(models.Model):
+    discount_code_id = models.AutoField(primary_key=True)
+    code = models.CharField(unique=True, max_length=20)
+    discount_percentage = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'discount_codes'
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(
+                    valid_to__gt=models.F('valid_from')), 
+                    name='valid_to_after_valid_from'
+            ),
+        ]
+
+        
 class Games(models.Model):
     game_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
@@ -15,6 +34,7 @@ class Games(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     cover_image = models.CharField(max_length=500)
     is_active = models.BooleanField(default=True)
+    discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
 
     class Meta:
         db_table = 'games'
@@ -49,32 +69,12 @@ class CartItems(models.Model):
         unique_together = (('cart', 'game'),)
 
 
-class DiscountCodes(models.Model):
-    discount_code_id = models.AutoField(primary_key=True)
-    code = models.CharField(unique=True, max_length=20)
-    discount_percentage = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
-    valid_from = models.DateTimeField()
-    valid_to = models.DateTimeField()
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'discount_codes'
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(
-                    valid_to__gt=models.F('valid_from')), 
-                    name='valid_to_after_valid_from'
-            ),
-        ]
-
-
 class Orders(models.Model):
     order_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     status = models.CharField(max_length=50)
-    discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
 
     class Meta:
         db_table = 'orders'
