@@ -1,6 +1,6 @@
 ## Online Game E-commerce Platform (Django + SQL Server)
 
-![Game-Store](https://github.com/user-attachments/assets/f2bc1dc1-9f63-480c-bcd6-e1942cd198af)
+![image](https://github.com/user-attachments/assets/579f4dec-f161-4ba3-a6db-03f318bda80d)
 
 ## Overview
 

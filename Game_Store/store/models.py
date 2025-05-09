@@ -37,6 +37,7 @@ class Games(models.Model):
     cover_image = models.CharField(max_length=500)
     is_active = models.BooleanField(default=True)
     discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
+    discount_code = models.ForeignKey(DiscountCodes, on_delete=models.CASCADE, blank=True, null=True, db_column='discount_code_id')
 
     def __str__(self):
         return str(self.game_id)
