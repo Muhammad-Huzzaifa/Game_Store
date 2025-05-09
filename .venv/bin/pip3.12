@@ -1,4 +1,4 @@
-#!/home/maarij-aqeel/Documents/Other/Websites/Game_Store_DB_Project/.venv/bin/python3
+#!/home/maarij-aqeel/Documents/Other/Websites/Game_Store/.venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
