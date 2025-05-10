@@ -6,6 +6,19 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 
+def index(request):
+    """Renders the index.html page."""
+    try:
+        context = {
+            'user': request.user,
+        }
+        return render(request, 'store/index.html', context)
+    except Exception as e:
+        messages.error(request, 'An error occurred while loading the page. Please try again.')
+        print(f"Error in index view: {str(e)}")
+        return render(request, 'store/index.html', {'user': request.user})
+    
+
 def auth(request):
     """Renders the authentication page."""
     return render(request, 'store/auth.html')
@@ -109,28 +122,45 @@ def delete_account(request):
     return redirect('store:index')
 
 
-def index(request):
-    """Renders the index.html page."""
-    return render(request, 'store/index.html')
+def shop(request):
+    """Renders the shop.html page."""
+    try:
+        context = {
+            'user': request.user,
+        }
+        return render(request, 'store/shop.html', context)
+    except Exception as e:
+        messages.error(request, 'An error occurred while loading the page. Please try again.')
+        print(f"Error in shop view: {str(e)}")
+        return render(request, 'store/shop.html', {'user': request.user})
 
-def author(request):
-    """Renders the author.html page."""
-    return render(request, 'store/author.html')
+
+def single(request):
+    """Renders the single.html page."""
+    try:
+        context = {
+            'user': request.user,
+        }
+        return render(request, 'store/single.html', context)
+    except Exception as e:
+        messages.error(request, 'An error occurred while loading the page. Please try again.')
+        print(f"Error in single view: {str(e)}")
+        return render(request, 'store/single.html', {'user': request.user})
+
 
 def cart(request):
     """Renders the cart.html page."""
     return render(request, 'store/cart.html')
 
+
 def contact(request):
     """Renders the contact.html page."""
-    return render(request, 'store/contact.html')
-
-def shop(request):
-    """Renders the shop.html page."""
-    return render(request, 'store/shop.html')
-
-def single(request):
-    """Renders the single.html page."""
-    # Note: This might need modification later if you want to display
-    # details for a specific game based on a URL parameter.
-    return render(request, 'store/single.html')
+    try:
+        context = {
+            'user': request.user,
+        }
+        return render(request, 'store/contact.html', context)
+    except Exception as e:
+        messages.error(request, 'An error occurred while loading the page. Please try again.')
+        print(f"Error in contact view: {str(e)}")
+        return render(request, 'store/contact.html', {'user': request.user})
