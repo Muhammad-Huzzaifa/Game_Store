@@ -204,3 +204,14 @@ BEGIN
 	SELECT order_id, 'Pending', 'Credit Card'
 	FROM inserted;
 END;
+
+-- Trigger on after inserting the game
+CREATE TRIGGER trg_game_after_insert
+ON games
+AFTER INSERT
+AS
+BEGIN
+	INSERT INTO inventory (game_id, stock_quantity)
+	SELECT game_id, 0
+	FROM inserted;
+END;
