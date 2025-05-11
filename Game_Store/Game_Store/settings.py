@@ -141,3 +141,12 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Admin Configuration
+LOGIN_URL = 'store:auth'
+LOGIN_REDIRECT_URL = 'store:index'
+LOGOUT_REDIRECT_URL = 'store:index'
+
+# Use custom admin login
+ADMIN_LOGIN = 'store:login'
+ADMIN_LOGIN_TEMPLATE = 'store/auth.html'

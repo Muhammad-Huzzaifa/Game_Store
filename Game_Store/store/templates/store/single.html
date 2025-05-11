@@ -34,7 +34,8 @@
 	<div class="row" id="logo-game-container">
 		<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 mb-sm-0 px-5 px-sm-3">
 			<div style="width: 250px; height: 250px; overflow: hidden;">
-				<img src="{{ game.cover_image }}" class="img-fluid" alt="{{ game.title }}" style="width: 250px; height: 250px; object-fit: fill;">
+				<img src="{{ game.cover_image }}" class="img-fluid" alt="{{ game.title }}"
+					style="width: 250px; height: 250px; object-fit: fill;">
 			</div>
 		</div>
 		<div class="col-12 col-sm-6 col-md-8 col-lg-9 d-flex flex-column align-items-md-end align-items-center">
@@ -42,6 +43,7 @@
 				{% if user.is_authenticated %}
 				<button type="button" id="price" data-id="{{ game.game_id }}"
 					value="{{ game.discounted_price|default:game.price }}">Add to cart</button>
+				{% endif %}
 				{% if game.discount_code %}
 				<p class="d-flex justify-content-around align-items-center pt-3">
 					<span class="badge badge-danger">-{{ game.discount_percentage }}%</span>
@@ -56,7 +58,6 @@
 				<span id="current" class="pt-3">
 					<i class="fas fa-euro-sign"></i>{{ game.price }}
 				</span>
-				{% endif %}
 				{% endif %}
 			</div>
 		</div>
