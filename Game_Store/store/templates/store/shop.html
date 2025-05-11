@@ -138,7 +138,7 @@
 						<i class="fas fa-cart-plus"></i>
 					</div>
 					{% endif %}
-					<a href="{% url 'store:single' game.game_id %}}" class="openSingle"
+					<a href="{% url 'store:single' game.game_id %}" class="openSingle"
 						data-id="{{ game.game_id }}" style="position: relative;">
 						{% if game.discount_code %}
 						<div class="ribbon"><span>SALE!</span></div>
