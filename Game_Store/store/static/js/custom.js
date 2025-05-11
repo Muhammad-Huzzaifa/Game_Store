@@ -64,8 +64,6 @@ $(document).ready(() =>
 		getData('allGames', displayHomeSlider);
 		getData('allGames', displayAllSections);
 		getData('comingSoon', displayComingSoon);
-		displayCountdown();
-		getData('allGames', displayTimerFeature);
 		removePng();
 	}
 	else if(location.indexOf("single") !== -1)
@@ -506,74 +504,6 @@ $(document).ready(() =>
 	}
 	//endregion
 
-	//region Display game item - homepage - store
-	function displayGames(data, parent)
-	{ // ispisivanje bloka sa igricom
-		if(parent != "products"){
-			$("#" + parent).addClass("row row-cols-2 row-cols-md-3 row-cols-lg-4 pl-0")
-		}
-		else{
-			$("#" + parent).removeClass();
-			$("#" + parent).addClass("row row-cols-2 row-cols-md-3")
-			$("#" + parent).empty();
-
-		}
-		for(let game of data){
-			let div = document.createElement("div");
-			div.className = `card mb-3 col`;
-			let favorite = document.createElement('div');
-			let cart = document.createElement('i');
-			cart.className = 'fas fa-cart-plus';
-			favorite.appendChild(cart);
-			favorite.setAttribute('data-id', game.id);
-			favorite.setAttribute('data-toggle', 'tooltip');
-			favorite.setAttribute('data-placement', 'top');
-			favorite.setAttribute('title', 'Add to cart');
-			favorite.className = 'favorite d-flex justify-content-center align-items-center';
-			div.appendChild(favorite)
-			let a = document.createElement("a");
-			a.setAttribute("href","/single/");
-			a.className = "openSingle";
-			a.setAttribute("data-id", game.id)
-			a.style.position = "relative";
-			div.appendChild(a);
-			if(game.price.discount.isDiscounted){
-				let ribbon = document.createElement("div");
-				ribbon.className = "ribbon";
-				let span = document.createElement("span");
-				span.innerHTML = "SALE!"
-				ribbon.appendChild(span);
-				a.appendChild(ribbon)
-			}
-			let image = document.createElement("img");
-			image.setAttribute("src", game.image.cover);
-			image.setAttribute("alt", game.name)
-			image.className = "card-img-top";
-			a.appendChild(image);
-			let card = document.createElement("div");
-			card.className = "card-body";
-			a.appendChild(card)
-			let h5 = document.createElement("h5");
-			h5.textContent = game.name;
-			h5.className = "card-title";
-			card.appendChild(h5)
-			let ul = document.createElement("ul");
-			ul.className = "card-info";
-			card.appendChild(ul)
-			let li1 = document.createElement("li");
-			li1.className = "text-muted developer"
-			li1.textContent = game.info.about[0].value;
-			ul.appendChild(li1)
-			let li2 = document.createElement("li");
-			li2.className = "price"
-			li2.innerHTML = price(game, game.price.discount);
-			ul.appendChild(li2)
-			$("#" + parent).append(div)
-			$('[data-toggle="tooltip"]').tooltip();
-		}
-
-	}
-	//endregion
 
 	//region Header
 	function setHeader()
@@ -677,7 +607,7 @@ $(document).ready(() =>
 	function removePng()
 	{
 		if(window.innerWidth < 992){
-			$(".deal_ofthe_week_img img").hide();
+			// $(".deal_ofthe_week_img img").hide();
 			$(".deal_ofthe_week").height("auto")
 		}
 		else{
@@ -687,116 +617,6 @@ $(document).ready(() =>
 	//endregion
 
 	//region Homepage display sections
-	function displayCountdown()
-	{
-		var countDownDate = new Date("April 1, 2021 00:00:00").getTime(); // do ovog dana da se vrsi odbrojavanje - uzima se broj milisekundi
-		const seconds = 1000,
-			minutes = seconds * 60,
-			hours = minutes * 60,
-			day = hours * 24;
-		const msCas = 1000 * 60 * 60; //  1 sat
-		var x = setInterval(() => {
-			var now = new Date().getTime(); //trenutno vreme u milisekundama
-			var razlika = (countDownDate + msCas)  - now; // ovde dodajem jedan sat u odnosu na GMT vreme
-			var days = Math.floor(razlika / (1000 * 60 * 60 * 24));
-			var hours = Math.floor((razlika % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-			var minutes = Math.floor((razlika % (1000 * 60 * 60)) / (1000 * 60));
-			var seconds = Math.floor((razlika % (1000 * 60)) / 1000);
-			$("#day").html(days);
-			$("#hour").html(hours);
-			$("#minute").html(minutes);
-			$("#second").html(seconds);
-			if (razlika < 0) {
-				clearInterval(x);
-				$(".deal_ofthe_week_col").html("New deals coming soon!");
-			}
-		}, 1000);
-	};
-	function displayTimerFeature(data){
-		for (let x of data){
-			if(x.id == 20){
-				var content = `<div class="row">
-							<div class="col-lg-6">
-								<div class="deal_ofthe_week_img">
-									<img src="/static/images/deal_week_guy.png" class="img-fluid" alt="guy1880">
-								</div>
-							</div>
-							<div class="col-lg-6 text-right deal_ofthe_week_col">
-								<div class="deal_ofthe_week_content d-flex flex-column align-items-center justify-content-center">
-								<div class="section_title d-flex flex-column align-items-center">
-									<h2 class="mb-3">Deal of the month!</h2>
-									<img src="${x.image.logo}" alt="logo">
-								</div>
-								<ul class="timer mt-5">
-									<li class="d-inline-flex flex-column justify-content-center align-items-center">
-										<div id="day" class="timer_num"></div>
-										<div class="timer_unit">Days</div>
-									</li>
-									<li class="d-inline-flex flex-column justify-content-center align-items-center">
-										<div id="hour" class="timer_num"></div>
-										<div class="timer_unit">Hours</div>
-									</li>
-									<li class="d-inline-flex flex-column justify-content-center align-items-center">
-										<div id="minute" class="timer_num"></div>
-										<div class="timer_unit">Mins</div>
-									</li>
-									<li class="d-inline-flex flex-column justify-content-center align-items-center">
-										<div id="second" class="timer_num"></div>
-										<div class="timer_unit">Sec</div>
-									</li>
-								</ul>
-								<a href="single.html" data-id="${x.id}" class="mt-5 openSingle"><div class="red_button deal_ofthe_week_button d-flex justify-content-center align-items-center flex-row">Buy ${x.name} </div></a>
-								</div>
-								</div>
-							</div>`
-			}
-		}
-
-		$(".deal_ofthe_week").html(content);
-	}
-	function homepageGames(sectionId, data)
-	{ // ispisivanje igrica
-
-		if($(window).width() < 768 || $(window).width() >= 992){
-			var maxItemsFirstRow = 4;
-		}
-		else{
-			var maxItemsFirstRow = 3;
-		}
-		let counter = [];
-		let firstRow = data.filter((game, index) => { // izvlacenje prvih 4 igrica
-			if(counter.length < maxItemsFirstRow){
-				if(sectionId == "newReleases"){
-					return game.newRelease.value && counter.push(index);
-				}
-				else if(sectionId == "hotSales"){
-					return game.price.discount.isDiscounted && counter.push(index);
-				}
-				else if(sectionId == "topSellers"){
-					return game.otherId.includes(2) && counter.push(index);
-				}
-			}
-		})
-		displayGames(firstRow, sectionId);
-	};
-	function displayAllSections(result)
-	{// ispisivanje svih sekcija na pocetnoj stranici
-		homepageGames("newReleases", result);
-		homepageGames("hotSales", result);
-		homepageGames("topSellers", result);
-	};
-	//endregion
-
-	//region Get price for game
-	function price(item, discount)
-	{
-		if(!discount.isDiscounted){
-			return `<i class="fas fa-euro-sign"></i>${item.price.value.netPrice}`
-		}
-		else{
-			return `<span class="badge">-${item.price.discount.amount}%</span> <s class="text-muted"><i class="fas fa-euro-sign"></i>${item.price.value.listPrice}</s> <span><i class="fas fa-euro-sign"></i>${item.price.value.netPrice}</span>`
-		}
-	};
 	//endregion
 
 	//region Display store & checkboxes
@@ -1072,126 +892,8 @@ $(document).ready(() =>
 			year : year
 		}
 	}
-	//endregion
-
-	//region Single page product
-
-	function displaySingle(allGames)
-	{
-		for(let item of allGames){
-			if(item.id == localStorage.getItem("id")){
-				document.title = "Game Hut - " + item.name;
-				$("#name").append(item.name);
-				$("#gameName").append(item.name);
-				getLogoPriceSection(item.image.logo, item.name, item.price);
-				getAbout(item.info.about, item.info.text)
-				fillSystemReq("minimum", item.specifications.minimum);
-				fillSystemReq("recommended", item.specifications.recommended);
-				getScreenshots(item.image.gallery, item.name);
-				var owl_single = $("single");
-				owl_single.owlCarousel(
-					{
-						items:1,
-						loop : true,
-						autoplay: true,
-						mouseDrag: true,
-						touchDrag: true,
-						dots: true,
-						nav: false,
-						autoplayHoverPause: true
-					}
-				)
-			}
-		}
-	};
-	function getLogoPriceSection(logo, alt, price)
-	{ //ispisivanje cene na single.html
-		var logoDisplay = `<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 mb-sm-0 px-5 px-sm-3">
-						<img src="${logo}" class="img-fluid" alt="${alt}">
-					</div>
-					<div class="col-12 col-sm-6 col-md-8 col-lg-9 d-flex flex-column align-items-md-end align-items-center">`;
-		if(!price.discount.isDiscounted){
-			logoDisplay += `<div class="d-flex flex-column align-items-sm-end align-items-center">
-											<button type="button" id="price" data-id="${localStorage.getItem('id')}" value="${price.value.netPrice}">Add to cart</button>
-												<span id="current" class="pt-3">
-													<i class="fas fa-euro-sign"></i>${price.value.netPrice}
-												</span>	
-										</div>`
-		}
-		else{
-			logoDisplay +=`<div class="d-flex flex-column align-items-end">
-											<button type="button" id="price" data-id="${localStorage.getItem('id')}" value="${price.value.netPrice}">Add to cart</button>
-											<p class="d-flex justify-content-around align-items-center pt-3">
-												<span class="badge badge-danger">-${price.discount.amount}%</span>
-												<s class="pl-2 pr-2">
-													<i class="fas fa-euro-sign "></i>${price.value.listPrice}
-												</s> 
-												<span id="current">
-													<i class="fas fa-euro-sign"></i>${price.value.netPrice}
-												</span>
-											</p>	
-										</div>`
-		}
-		logoDisplay += "</div>"
-		$("#logo-game-container").append(logoDisplay);
-	};
-	function getAbout(about, textInfo)
-	{//printing game info on single.html
-		var info = "";
-		var text = "";
-		for(let i in about){
-			if(about[i].name.toLowerCase().indexOf('release') != -1){
-				let date = getDateString(about[i].value);
-				info += `<li>
-						<h6>${about[i].name}</h6>
-						<p>${date.month} ${date.day}, ${date.year}</p>
-					</li>`
-				continue;
-			}
-			info += `<li>
-						<h6>${about[i].name}</h6>
-						<p>${about[i].value}</p>
-					</li>`
-		}
-		for(let i in textInfo){
-			text += `<h6>${textInfo[i][0]}</h6>
-						<p>${textInfo[i][1]}</p>`
-		}
-		$("#about").append(info);
-		$("#infoText").append(text);
-	};
-	function getScreenshots(gallery, alt)
-	{//Printing game info oa single.html
-		var screenshots = "";
-		screenshots = '<div class="owl-carousel single">';
-		for (let i in gallery){
-			screenshots += `<div class="item">
-			<img src="${gallery[i]}" class="img-fluid" alt="${alt}">
-		</div>`
-		}
-		screenshots += `</div`;
-		$("#slika").append(screenshots);
-	};
-	function fillSystemReq(minOrRec, specifications)
-	{//ispisivanje sistemskih zahteva na single.html
-		for(let i in specifications){
-			//create
-			let li = document.createElement("li");
-			let h6 = document.createElement("h6");
-			h6.className = "text-muted";
-			let h6Content = document.createTextNode(specifications[i].name);
-			let p = document.createElement("p");
-			let pContent = document.createTextNode(specifications[i].value);
-
-			//appending
-			li.appendChild(h6);
-			h6.appendChild(h6Content);
-			li.appendChild(p);
-			p.appendChild(pContent);
-
-			$("#" + minOrRec).append(li);
-		}
-	};
+	
+	
 	$(document).on('click', '#price', sendToCart);
 	$(document).on('click', '.favorite', sendToCart);
 	function sendToCart(){

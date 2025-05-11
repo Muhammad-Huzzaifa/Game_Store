@@ -129,8 +129,40 @@
 
 				</div>
 			</div>
-			<div id="products">
-
+			<div id="products" class="row row-cols-2 row-cols-md-3">
+				{% for game in games %}
+				<div class="card mb-3 col">
+					{% if user.is_authenticated %}
+					<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
+						class="favorite d-flex justify-content-center align-items-center">
+						<i class="fas fa-cart-plus"></i>
+					</div>
+					{% endif %}
+					<a href="{% url 'store:single' game.game_id %}}" class="openSingle"
+						data-id="{{ game.game_id }}" style="position: relative;">
+						{% if game.discount_code %}
+						<div class="ribbon"><span>SALE!</span></div>
+						{% endif %}
+						<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
+							height="375px">
+						<div class="card-body">
+							<h5 class="card-title">{{ game.title }}</h5>
+							<ul class="card-info">
+								<li class="text-muted developer">{{ game.developer }}</li>
+								<li class="price">
+									{% if game.discount_code %}
+									<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
+									<s class="text-muted"><i class="fas fa-euro-sign"></i>{{ game.price }}</s>
+									<span><i class="fas fa-euro-sign"></i>{{ game.discounted_price }}</span>
+									{% else %}
+									<i class="fas fa-euro-sign"></i>{{ game.price }}
+									{% endif %}
+								</li>
+							</ul>
+						</div>
+					</a>
+				</div>
+				{% endfor %}
 			</div>
 			<div class="col-12 d-flex justify-content-center align-items-center p-4" id="pag">
 

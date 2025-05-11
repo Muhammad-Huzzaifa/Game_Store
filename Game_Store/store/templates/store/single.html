@@ -32,58 +32,81 @@
 </div>
 <div class="container mb-3">
 	<div class="row" id="logo-game-container">
+		<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3 mb-sm-0 px-5 px-sm-3">
+			<div style="width: 250px; height: 250px; overflow: hidden;">
+				<img src="{{ game.cover_image }}" class="img-fluid" alt="{{ game.title }}" style="width: 250px; height: 250px; object-fit: fill;">
+			</div>
+		</div>
+		<div class="col-12 col-sm-6 col-md-8 col-lg-9 d-flex flex-column align-items-md-end align-items-center">
+			<div class="d-flex flex-column align-items-end">
+				{% if user.is_authenticated %}
+				<button type="button" id="price" data-id="{{ game.game_id }}"
+					value="{{ game.discounted_price|default:game.price }}">Add to cart</button>
+				{% if game.discount_code %}
+				<p class="d-flex justify-content-around align-items-center pt-3">
+					<span class="badge badge-danger">-{{ game.discount_percentage }}%</span>
+					<s class="pl-2 pr-2">
+						<i class="fas fa-euro-sign"></i>{{ game.price }}
+					</s>
+					<span id="current">
+						<i class="fas fa-euro-sign"></i>{{ game.discounted_price }}
+					</span>
+				</p>
+				{% else %}
+				<span id="current" class="pt-3">
+					<i class="fas fa-euro-sign"></i>{{ game.price }}
+				</span>
+				{% endif %}
+				{% endif %}
+			</div>
+		</div>
 	</div>
 </div>
-<!-- SCREENSHOTS SECTION -->
-<div class="container">
-	<div class="row">
-		<div class="col-12 col-md-4 col-lg-3">
-			<h5>Gameplay screenshots</h5>
-		</div>
-		<div class="col-12 col-md-8 col-lg-9 mb-3" id="slika">
 
-		</div>
-	</div>
-</div>
 <!-- ABOUT GAME -->
 <div class="container">
 	<div class="row">
 		<div class="col-12 col-md-4 col-lg-3">
-			<h1 id="gameName">About </h1>
+			<h1 id="gameName">About {{ game.title }}</h1>
 		</div>
 		<div class="col-12 col-md-8 col-lg-9 mb-3">
 			<ul class="d-flex flex-wrap flex-column p-3" id="about">
-
+				{% if game.developer %}
+				<li>
+					<h6>Developer</h6>
+					<p>{{ game.developer }}</p>
+				</li>
+				{% endif %}
+				{% if game.publisher %}
+				<li>
+					<h6>Publisher</h6>
+					<p>{{ game.publisher }}</p>
+				</li>
+				{% endif %}
+				{% if game.release_date %}
+				<li>
+					<h6>Release date</h6>
+					<p>{{ game.release_date|date:"M d, Y" }}</p>
+				</li>
+				{% endif %}
+				{% if game.genre %}
+				<li>
+					<h6>Genre</h6>
+					<p>{{ game.genre }}</p>
+				</li>
+				{% endif %}
+				{% if game.platform %}
+				<li>
+					<h6>Platform</h6>
+					<p>{{ game.platform }}</p>
+				</li>
+				{% endif %}
 			</ul>
+			{% if game.description %}
 			<div id="infoText" class="p-3">
+				<p>{{ game.description }}</p>
 			</div>
-		</div>
-	</div>
-</div>
-<!-- SYSTEM REQUIREMENTS -->
-<div class="container">
-	<div class="row" id="sysReq">
-		<div class="col-12 col-md-4 col-lg-3 text-light">
-			<h5>System requirements</h5>
-		</div>
-		<div class="col-12 col-md-8 col-lg-9">
-			<div class="row px-3">
-				<div class="col-12 m-0 p-0">
-					<h6 class="p-3 mb-3 borderBot d-inline-block reqOutput">Windows</h6>
-				</div>
-				<div class="col-12 col-sm pt-4 reqOutput">
-					<h6 class="mb-4">Minimum requirements</h6>
-					<ul id="minimum">
-
-					</ul>
-				</div>
-				<div class="col-12 col-sm pt-4 reqOutput">
-					<h6 class="mb-4">Recommended requirements</h6>
-					<ul id="recommended">
-
-					</ul>
-				</div>
-			</div>
+			{% endif %}
 		</div>
 	</div>
 </div>

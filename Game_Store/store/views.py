@@ -4,13 +4,61 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.db.models import Sum, Value, IntegerField
+from django.db.models.functions import Coalesce
+from . import models
 
 
 def index(request):
-    """Renders the index.html page."""
+    """Renders the index.html page with new releases, hot sales, and top sellers."""
     try:
+        # New Releases
+        new_releases = models.Games.objects.filter(
+            is_active=True,
+            release_date__isnull=False
+        ).order_by('-release_date')[:4]
+        for game in new_releases:
+            if game.discount_code:
+                discount_amount = (game.price * game.discount_code.discount_percentage) / 100
+                game.discounted_price = game.price - discount_amount
+            else:
+                game.discounted_price = None
+        
+        # Hot Sales
+        hot_sales = models.Games.objects.filter(
+            is_active=True,
+            discount_code__isnull=False
+        ).annotate(
+            total_sales=Coalesce(
+                Sum('orderitems__quantity'),
+                Value(0),
+                output_field=IntegerField()
+            )
+        ).order_by('-total_sales')[:4]
+        for game in hot_sales:
+            if game.discount_code:
+                discount_amount = (game.price * game.discount_code.discount_percentage) / 100
+                game.discounted_price = game.price - discount_amount
+            else:
+                game.discounted_price = None
+        
+        # Top Sellers
+        top_sellers = models.Games.objects.filter(
+            is_active=True,
+            discount_code__isnull=True
+        ).annotate(
+            total_sales=Coalesce(
+                Sum('orderitems__quantity'),
+                Value(0),
+                output_field=IntegerField()
+            )
+        ).order_by('-total_sales')[:4]
+
         context = {
             'user': request.user,
+            'new_releases': new_releases,
+            'hot_sales': hot_sales,
+            'top_sellers': top_sellers,
         }
         return render(request, 'store/index.html', context)
     except Exception as e:
@@ -123,10 +171,21 @@ def delete_account(request):
 
 
 def shop(request):
-    """Renders the shop.html page."""
+    """Renders the shop.html page with all active games."""
     try:
+        games = models.Games.objects.filter(is_active=True)
+        
+        # Pre-calculate discounted prices
+        for game in games:
+            if game.discount_code:
+                discount_amount = (game.price * game.discount_code.discount_percentage) / 100
+                game.discounted_price = game.price - discount_amount
+            else:
+                game.discounted_price = None
+
         context = {
             'user': request.user,
+            'games': games,
         }
         return render(request, 'store/shop.html', context)
     except Exception as e:
@@ -135,17 +194,32 @@ def shop(request):
         return render(request, 'store/shop.html', {'user': request.user})
 
 
-def single(request):
-    """Renders the single.html page."""
+def single(request, game_id):
+    """Renders the single.html page with game details."""
     try:
+        game = models.Games.objects.get(pk=game_id, is_active=True)
+        
+        # Calculate discounted price if applicable
+        if game.discount_code:
+            discount_amount = (game.price * game.discount_code.discount_percentage) / 100
+            game.discounted_price = game.price - discount_amount
+            game.discount_percentage = game.discount_code.discount_percentage
+        else:
+            game.discounted_price = None
+            game.discount_percentage = None
+
         context = {
             'user': request.user,
+            'game': game,
         }
         return render(request, 'store/single.html', context)
+    except models.Games.DoesNotExist:
+        messages.error(request, 'Game not found.')
+        return redirect('store:shop')
     except Exception as e:
         messages.error(request, 'An error occurred while loading the page. Please try again.')
         print(f"Error in single view: {str(e)}")
-        return render(request, 'store/single.html', {'user': request.user})
+        return redirect('store:shop')
 
 
 def cart(request):

@@ -14,7 +14,7 @@
 	</div>
 	<div class="progress">
 		<div id="progressBar">
-			
+
 		</div>
 	</div>
 </div>
@@ -26,8 +26,40 @@
 				<h5>New releases</h5>
 			</div>
 			<div class="col-12 p-0">
-				<div id="newReleases">
-
+				<div id="newReleases" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 pl-0">
+					{% for game in new_releases %}
+					<div class="card mb-3 col">
+						{% if user.is_authenticated %}
+						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
+							class="favorite d-flex justify-content-center align-items-center">
+							<i class="fas fa-cart-plus"></i>
+						</div>
+						{% endif %}
+						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
+							data-id="{{ game.game_id }}" style="position: relative;">
+							{% if game.discount_code %}
+							<div class="ribbon"><span>SALE!</span></div>
+							{% endif %}
+							<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
+								height="375px">
+							<div class="card-body">
+								<h5 class="card-title">{{ game.title }}</h5>
+								<ul class="card-info">
+									<li class="text-muted developer">{{ game.developer }}</li>
+									<li class="price">
+										{% if game.discount_code %}
+										<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
+										<s class="text-muted"><i class="fas fa-euro-sign"></i>{{ game.price }}</s>
+										<span><i class="fas fa-euro-sign"></i>{{ game.discounted_price }}</span>
+										{% else %}
+										<i class="fas fa-euro-sign"></i>{{ game.price }}
+										{% endif %}
+									</li>
+								</ul>
+							</div>
+						</a>
+					</div>
+					{% endfor %}
 				</div>
 			</div>
 		</div>
@@ -40,8 +72,40 @@
 				<h5>Hot Sales</h5>
 			</div>
 			<div class="col-12 p-0">
-				<div id="hotSales">
-
+				<div id="hotSales" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 pl-0">
+					{% for game in hot_sales %}
+					<div class="card mb-3 col">
+						{% if user.is_authenticated %}
+						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
+							class="favorite d-flex justify-content-center align-items-center">
+							<i class="fas fa-cart-plus"></i>
+						</div>
+						{% endif %}
+						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
+							data-id="{{ game.game_id }}" style="position: relative;">
+							{% if game.discount_code %}
+							<div class="ribbon"><span>SALE!</span></div>
+							{% endif %}
+							<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
+								height="375px">
+							<div class="card-body">
+								<h5 class="card-title">{{ game.title }}</h5>
+								<ul class="card-info">
+									<li class="text-muted developer">{{ game.developer }}</li>
+									<li class="price">
+										{% if game.discount_code %}
+										<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
+										<s class="text-muted"><i class="fas fa-euro-sign"></i>{{ game.price }}</s>
+										<span><i class="fas fa-euro-sign"></i>{{ game.discounted_price }}</span>
+										{% else %}
+										<i class="fas fa-euro-sign"></i>{{ game.price }}
+										{% endif %}
+									</li>
+								</ul>
+							</div>
+						</a>
+					</div>
+					{% endfor %}
 				</div>
 			</div>
 		</div>
@@ -55,8 +119,14 @@
 			</div>
 		</div>
 		<div class="row align-items-center" id="box">
-			<div class="deal_ofthe_week">
-
+			<div class="deal_ofthe_week" style="height: auto;">
+				<div class="row">
+					<div class="col-lg-6">
+						<div class="deal_ofthe_week_img">
+							<img src="{% static 'images/deal_week_guy.png' %}" class="img-fluid" alt="guy1880">
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -68,8 +138,40 @@
 				<h5>Top sellers</h5>
 			</div>
 			<div class="col-12 p-0">
-				<div id="topSellers">
-
+				<div id="topSellers" class="row row-cols-2 row-cols-md-3 row-cols-lg-4 pl-0">
+					{% for game in top_sellers %}
+					<div class="card mb-3 col">
+						{% if user.is_authenticated %}
+						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
+							class="favorite d-flex justify-content-center align-items-center">
+							<i class="fas fa-cart-plus"></i>
+						</div>
+						{% endif %}
+						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
+							data-id="{{ game.game_id }}" style="position: relative;">
+							{% if game.discount_code %}
+							<div class="ribbon"><span>SALE!</span></div>
+							{% endif %}
+							<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
+								height="375px">
+							<div class="card-body">
+								<h5 class="card-title">{{ game.title }}</h5>
+								<ul class="card-info">
+									<li class="text-muted developer">{{ game.developer }}</li>
+									<li class="price">
+										{% if game.discount_code %}
+										<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
+										<s class="text-muted"><i class="fas fa-euro-sign"></i>{{ game.price }}</s>
+										<span><i class="fas fa-euro-sign"></i>{{ game.discounted_price }}</span>
+										{% else %}
+										<i class="fas fa-euro-sign"></i>{{ game.price }}
+										{% endif %}
+									</li>
+								</ul>
+							</div>
+						</a>
+					</div>
+					{% endfor %}
 				</div>
 			</div>
 		</div>
