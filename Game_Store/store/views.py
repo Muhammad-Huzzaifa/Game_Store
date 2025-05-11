@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from .models import Games,Carts,CartItems
 
 
 def auth(request):
@@ -79,7 +82,7 @@ def signup_view(request):
                 )
                 login(request, user)
                 messages.success(request, f'Account created successfully! Welcome, {first_name}!')
-                return redirect('store:index')
+                return redirect(request.path)
             except Exception as e:
                 messages.error(request, f'Error creating account: {str(e)}')
                 return redirect('store:auth')
@@ -113,13 +116,61 @@ def index(request):
     """Renders the index.html page."""
     return render(request, 'store/index.html')
 
-def author(request):
-    """Renders the author.html page."""
-    return render(request, 'store/author.html')
+def author_view(request):
+    games = Games.objects.all()  # Fetch all the games
+    return render(request, 'store/author.html', {'games': games})
+
 
 def cart(request):
     """Renders the cart.html page."""
     return render(request, 'store/cart.html')
+
+
+def Add_to_cart(request):
+    """Add Games to cart."""
+    if request.method=='POST':
+        game_id = request.POST.get('game_id')
+
+        # Validate User
+        if not request.user.is_authenticated:
+            messages.warning(request, "Please log in to add items to your cart")
+            return redirect(f"{reverse('store:auth')}?next=store:shop")
+
+ 
+        
+
+        try:
+            # Get or create user's cart
+            cart, created = Carts.objects.get_or_create(user=request.user)
+
+            # Get the game
+            game = Games.objects.get(game_id=game_id, is_active=True)
+            
+            # Check if item already in cart
+            cart_item, item_created = CartItems.objects.get_or_create(
+                cart=cart,
+                game_id=game_id,
+                defaults={'quantity': 1}
+            )
+            
+            # If item already exists, increase quantity
+            if not item_created:
+                cart_item.quantity += 1
+                cart_item.save()
+                
+            messages.success(request, f"{game.title} added to your cart!")
+            
+        except Games.DoesNotExist:
+            messages.error(request, "Game not found or unavailable.")
+        
+        # Redirect to the same page or cart page
+        return redirect(request.META.get('HTTP_REFERER', 'store:Add_to_cart'))
+    
+    # If not a POST request, redirect to home
+    return redirect('store:index')
+    
+
+    
 
 def contact(request):
     """Renders the contact.html page."""
@@ -127,10 +178,14 @@ def contact(request):
 
 def shop(request):
     """Renders the shop.html page."""
-    return render(request, 'store/shop.html')
 
-def single(request):
+    games=Games.objects.all()
+    return render(request,'store/shop.html',{'games':games})
+
+def single(request,game_id):
     """Renders the single.html page."""
     # Note: This might need modification later if you want to display
     # details for a specific game based on a URL parameter.
-    return render(request, 'store/single.html')
+    game=get_object_or_404(Games,game_id=game_id)
+    return render(request, 'store/single.html', {'game': game})
+

@@ -99,23 +99,24 @@
 
             </div>
         </div>
-        <!-- Contact Us -->
-        <div class="row my-3" id="autor">
-            <div class="col-9 col-md-4 mb-3 mb-md-0">
-                <img src="{% static 'images/autor.jpg' %}" alt="author" class="img-fluid"/>
-            </div>
-            <div class="col-12 col-md-8">
-                <h1>Adam Nikolić 101/19</h1>
-                <p>Hi. I'm a web developer from Požega, Serbia. Right now I'm studying Internet Technologies at Information and Communication Technologies College in Belgrade and I'm pursuing career in Web programming.</p>
-                <ul class="d-flex flex-row align-items-center justify-content-start">
-                    <li><a href="https://www.facebook.com"><i class="fab fa-facebook"></i></a></li>
-                    <li><a href="https://www.github.com/adamnik101"><i class="fab fa-github"></i></a></li>
-                    <li><a href="https://www.instagram.com/adamnikk"><i class="fab fa-instagram"></i></a></li>
-                </ul>
-                <a href="https://adamnik101.github.io/adamportfolio/index.html" target="_blank" rel="noopener noreferrer"><button type="button">My portfolio</button> </a>
-            </div>
+        
 
+        <!-- Game List -->
+        <div class="row mt-5">
+            {% for game in games %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="game-item">
+                        <img src="{{ game.cover_image }}" alt="{{ game.title }}" class="img-fluid">
+                        <h3>{{ game.title }}</h3>
+                        <p>{{ game.description }}</p>
+                        <a href="{% url 'store:single' %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No games available at the moment.</p>
+            {% endfor %}
         </div>
+
     </div>
 
     <!-- Newsletter -->

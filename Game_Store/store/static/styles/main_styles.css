@@ -1840,3 +1840,327 @@ textarea
 }
 /*endregion*/
 
+
+
+
+
+
+/* Games css */
+
+/* Container styling */
+#Games .row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Game Card */
+.game-item {
+    background-color: #1e1e1e;
+    color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* Remove padding from main container */
+}
+
+.game-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Image container to maintain aspect ratio */
+.game-image-container {
+    width: 100%;
+    height: 220px; /* Set fixed height */
+    overflow: hidden;
+    position: relative;
+}
+
+.cart-icon {
+	position: absolute;
+	bottom: 8px;
+	right: 8px;
+	background: rgba(255, 255, 255, 0.8);
+	padding: 6px;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: background 0.3s, color 0.3s;
+	z-index: 10; /* Ensure it appears above other elements */
+	box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+	height: 40px;
+	width: 40px;
+	display: flex; 
+	align-items: center;
+	justify-content: center;
+  }
+
+  .cart-form {
+	margin: 0;
+	padding: 0;
+	display: inline-block;
+	border: none;
+	background: none;
+}
+
+.cart-button {
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	color: inherit; /* Inherit color from parent */
+	font-size: inherit;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.cart-button:hover {
+	color:  rgba(0, 123, 255, 0.8);
+}
+
+.cart-button:focus {
+	outline: none; /* Remove focus outline */
+}
+
+/* Ensure the icon itself doesn't have unwanted styling */
+.cart-button i {
+	display: inline-block;
+}
+  
+  .cart-icon i {
+	font-size: 15px;
+	color: #000;
+	display: block; /* Ensure proper rendering */
+  }
+	
+  .cart-icon:hover {
+	background: rgba(0, 123, 255, 0.8);
+  }
+  
+  .cart-icon:hover i {
+	color: #fff;
+  }
+
+/* Fix image height and align cards */
+.game-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Maintain aspect ratio and crop excess */
+    transition: transform 0.3s ease;
+}
+
+.game-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Content section */
+.game-content {
+    padding: 13px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+
+
+/* Game Title with ellipsis for long titles */
+.game-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Developer */
+.game-item .developer {
+    font-size: 0.9rem;
+    color: #969696;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Price */
+.game-item .price {
+    font-weight: bold;
+    color: #f0f0f0;
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+/* Button */
+.game-item .btn-primary {
+    background-color: #007bff;
+    border: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    align-self: flex-start;
+    margin-top: auto; /* pushes button to bottom */
+    width: 100%; /* Make button full width */
+    text-align: center;
+}
+
+#Games .col-lg-4 {
+    display: flex;
+}
+
+.game-item .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+/* Single.html */
+
+
+/* Game Image Styling */
+.img-fluid {
+	border-radius: 12px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Headings */
+.container h3, .container h2 {
+	color: #ffffff;
+	margin-bottom: 1rem;
+	border-bottom: 2px solid #dee2e6;
+	padding-bottom: 0.5rem;
+}
+
+/* Game Details Text */
+.container p {
+	font-size: 22px;
+	line-height: 1.6;
+	color: #f6f8f9;
+	margin-bottom: 0.7rem;
+}
+
+/* Strong labels in Game Details */
+.container p strong {
+	color: #8b8b8b;
+	
+}
+
+/* Platform Placeholder */
+.container ul {
+	list-style: none;
+	padding-left: 0;
+}
+
+
+
+/* Screenshot placeholder */
+.container p:last-child {
+	color: #ffffff;
+	font-style: normal;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+	.container h2, .container h3 {
+		font-size: 1.4rem;
+	}
+
+	.container p {
+		font-size: 1rem;
+	}
+}
+
+
+/* Game box */
+.about-game-box {
+	background-color: #313030;         
+	color: #222;                       
+	padding: 30px;
+	border-radius: 12px;
+	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+	line-height: 1.7;
+}
+
+/* Section title */
+.about-game-title {
+	color: #d5d0d0;
+	font-size: 28px;
+	font-weight: 600;
+	margin-bottom: 20px;
+}
+
+
+/* About section */
+.about-label {
+	color: #fbfbfb;
+	font-size: 20px;
+	font-weight: 700;
+	margin-bottom: 5px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.about-game-box .about-value {
+	font-size: 23px !important; 
+	color: #e21e21 !important;
+  }
+  
+
+
+.platform-box {
+	background-color: #313030;
+	border-radius: 10px;
+	padding: 20px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+	color: #ccc;
+}
+
+.platform-box h3{
+	font-style: bold;
+}
+.platform-box h5 {
+	color: #fbfbfb;
+	margin-bottom: 15px;
+	font-size: 21px;
+	font-weight: 700;
+	
+}
+
+.platform-box ul li {
+	font-size: 20px;
+	padding: 5px 0;
+}
+
+
+.cart-btn-container {
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 15px;
+	margin-top: 15px;
+}
+
+
+.game-cart-btn {
+    background-color: #e21e21;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+	margin-top: 15px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.game-cart-btn:hover {
+    background-color: #313030;
+}

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
 <link rel="stylesheet" type="text/css" href="{% static 'owlcarousel/owl.carousel.min.css' %}"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" type="text/css" href="{% static 'styles/main_styles.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'styles/responsive.css' %}">
 </head>
@@ -201,7 +202,43 @@
 
 
 				</div>
-				<div id="products"></div>
+				<!-- Games  -->
+				
+				<div id="Games" class="container">
+					<div class="row">
+						{% for game in games %}
+							<div class="col-lg-4 col-md-6 mb-4">
+								<div class="game-item">
+									<div class="game-image-container">
+										<a href="{% url 'store:single' game.game_id %}">
+											<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="img-fluid">
+										</a>
+										<div class="cart-icon">
+											<form action="{% url 'store:Add_to_cart' %}" method="POST" class="cart-form">
+												{% csrf_token %}
+												<input type="hidden" name="game_id" value="{{ game.game_id }}">
+												<button type="submit" class="cart-button" aria-label="Add to cart">
+													<i class="fas fa-cart-plus"></i>
+												</button>
+											</form>
+										</div>
+									</div>
+									<div class="game-content">
+										<h3 class="game-title">{{ game.title }}</h3>
+										<p class="developer">{{ game.developer }}</p>
+										<p class="price">{{ game.price }}Rs</p>
+									</div>
+								</div>
+							</div>
+						{% empty %}
+							<p>No games available at the moment.</p>
+						{% endfor %}
+					</div>
+				</div>
+				
+				
+
+				
 				<div class="col-12 d-flex justify-content-center align-items-center p-4" id="pag">
 					
 				</div>

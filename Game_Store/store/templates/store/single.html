@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title></title> <!-- Dinamicki se ispisuje -->
+<title></title> <!--Dynamically -->
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -101,63 +101,109 @@
 			</div>
 		</div>
 	</div>
-	<div class="container mb-3">
-		<div class="row" id="logo-game-container">
+
+
+<!-- Game Details Section -->
+<div class="container mb-5">
+	<div class="row">
+		<div class="col-md-4">
+			<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="img-fluid rounded shadow">
 		</div>
-	</div>
-	<!-- SCREENSHOTS SECTION -->
-	<div class="container">
-		<div class="row">
-			<div class="col-12 col-md-4 col-lg-3">
-				<h5>Gameplay screenshots</h5>
-			</div>
-			<div class="col-12 col-md-8 col-lg-9 mb-3" id="slika">
-				
-			</div>
-		</div>
-	</div>
-	<!-- ABOUT GAME -->
-	<div class="container">
-		<div class="row">
-			<div class="col-12 col-md-4 col-lg-3">
-				<h1 id="gameName">About </h1>
-			</div>
-			<div class="col-12 col-md-8 col-lg-9 mb-3">
-					<ul class="d-flex flex-wrap flex-column p-3" id="about">
-					
-					</ul>
-					<div id="infoText" class="p-3"> 
-					</div>
+		<div class="col-md-8">
+			<h2 class="mb-3">{{ game.title }}</h2>
+			<p><strong>Developer:</strong> {{ game.developer }}</p>
+			<p><strong>Publisher:</strong> {{ game.publisher }}</p>
+			<p><strong>Genre:</strong> {{ game.genre }}</p>
+			<p><strong>Platform:</strong> {{ game.platform }}</p>
+			<p><strong>Release Date:</strong> {{ game.release_date }}</p>
+			<p><strong>Price:</strong> {{ game.price }} Rs</p>
+			<div class="cart-btn-container mt-4">
+				<form action="{% url 'store:Add_to_cart' %}" method="POST">
+					{% csrf_token %}
+					<input type="hidden" name="game_id" value="{{ game.game_id }}">
+					<button type="submit" class="game-cart-btn">Add to Cart</button>
+				</form>
 			</div>
 		</div>
 	</div>
-	<!-- SYSTEM REQUIREMENTS -->
-	<div class="container">
-		<div class="row" id="sysReq">
-			<div class="col-12 col-md-4 col-lg-3 text-light">
-				<h5>System requirements</h5>
+</div>
+
+<!-- About the Game -->
+<div class="container mb-5">
+	<h3 class="about-game-title">About {{ game.title }}</h3>
+	<div class="about-game-box">
+		<div class="row mb-4">
+			<div class="col-md-4">
+				<p class="about-label">Publisher</p>
+				<p class="about-value">{{ game.publisher|default:"N/A" }}</p>
 			</div>
-			<div class="col-12 col-md-8 col-lg-9">
-				<div class="row px-3" >
-					<div class="col-12 m-0 p-0">
-						<h6 class="p-3 mb-3 borderBot d-inline-block reqOutput">Windows</h6>
-					</div>
-					<div class="col-12 col-sm pt-4 reqOutput">
-						<h6 class="mb-4">Minimum requirements</h6>
-						<ul id="minimum">
-							
-						</ul>
-					</div>
-					<div class="col-12 col-sm pt-4 reqOutput">
-						<h6 class="mb-4">Recommended requirements</h6>
-						<ul id="recommended">
-							
-						</ul>
-					</div>
-				</div>
+			<div class="col-md-4">
+				<p class="about-label">Release date</p>
+				<p class="about-value">{{ game.release_date|date:"M d, Y"|default:"N/A" }}</p>
+			</div>
+			<div class="col-md-4">
+				<p class="about-label">Genre</p>
+				<p class="about-value">{{ game.genre }}</p>
 			</div>
 		</div>
+
+		<!-- Description -->
+		<div>
+			{% for paragraph in game.description.splitlines %}
+				{% if paragraph %}
+					<p>{{ paragraph }}</p>
+				{% endif %}
+			{% endfor %}
+		</div>
 	</div>
+</div>
+
+
+<!-- Platforms -->
+<div class="container mb-5">
+	<h3 class="text-light mb-4 font-weight-bold">Platform</h3>
+    <div class="row text-center text-light platform-box">
+        <div class="col-md-4 mb-3">
+            <h5>PC</h5>
+            <ul class="list-unstyled">
+                {% if "pc" in game.platform|lower %}
+                    <li>✅</li>
+                {% else %}
+                    <li>❌</li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h5>Xbox</h5>
+            <ul class="list-unstyled">
+                {% if "xbox" in game.platform|lower %}
+                    <li>✅</li>
+                {% else %}
+                    <li>❌</li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h5>PlayStation</h5>
+            <ul class="list-unstyled">
+                {% if "playstation" in game.platform|lower %}
+                    <li>✅</li>
+                {% else %}
+                    <li>❌</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<!-- Screenshots Section (Optional / Placeholder) -->
+<div class="container mb-5">
+	<h3>Gameplay Screenshots</h3>
+	<p>No screenshots available.</p>
+</div>
+
+
 	<!-- Newsletter -->
 	<div class="newsletter">
 		<div class="container">
