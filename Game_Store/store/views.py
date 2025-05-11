@@ -6,11 +6,44 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db.models import Sum, Value, IntegerField
 from django.db.models.functions import Coalesce
+from django.contrib.auth.views import LoginView
 from . import models
+from .decorators import anonymous_required, user_required
+
+
+def admin_check(request):
+    """Check if user is admin and redirect if necessary."""
+    if request.path.startswith('/admin/'):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in with an admin account to access the admin interface.')
+            return redirect('store:auth')
+        if not (request.user.is_staff or request.user.is_superuser):
+            messages.error(request, 'You do not have permission to access the admin interface.')
+            return redirect('store:index')
+    elif request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, 'Admin users must use the admin interface.')
+        return redirect('/admin/')
+    return None
+
+
+def check_admin_access(request):
+    """Handle unauthorized access to admin URLs."""
+    if not request.user.is_authenticated:
+        messages.error(request, 'Please log in with an admin account to access the admin interface.')
+        return redirect('store:auth')
+    elif not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, 'You do not have permission to access the admin interface.')
+        return redirect('store:index')
+    return redirect('/admin/')
 
 
 def index(request):
     """Renders the index.html page with new releases, hot sales, and top sellers."""
+    # Check if user is admin
+    admin_redirect = admin_check(request)
+    if admin_redirect:
+        return admin_redirect
+        
     try:
         # New Releases
         new_releases = models.Games.objects.filter(
@@ -67,13 +100,15 @@ def index(request):
         return render(request, 'store/index.html', {'user': request.user})
     
 
+@anonymous_required
 def auth(request):
     """Renders the authentication page."""
     return render(request, 'store/auth.html')
 
 
+@anonymous_required
 def login_view(request):
-    """Handles user login."""
+    """Handles user login for both regular users and admin."""
     if request.method == 'POST':
         login_identifier = request.POST.get('login_identifier', '')
         password = request.POST.get('password', '')
@@ -97,6 +132,11 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                
+                if user.is_staff or user.is_superuser:
+                    messages.success(request, f'Welcome back, Administrator {user.get_full_name() or user.username}!')
+                    return redirect('/admin/')
+                    
                 messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
                 return redirect('store:index')
             else:
@@ -110,6 +150,7 @@ def login_view(request):
     return redirect('store:auth')
 
 
+@anonymous_required
 def signup_view(request):
     """Handles user signup."""
     if request.method == 'POST':
@@ -148,6 +189,7 @@ def signup_view(request):
     return redirect('store:auth')
 
 
+@user_required
 def logout_view(request):
     """Handles user logout."""
     if request.method == 'POST':
@@ -158,6 +200,7 @@ def logout_view(request):
     return render(request, 'store/index.html')
 
 
+@user_required
 def delete_account(request):
     """Handles user account deletion."""
     if request.method == 'POST' and request.user.is_authenticated:
@@ -172,10 +215,13 @@ def delete_account(request):
 
 def shop(request):
     """Renders the shop.html page with all active games."""
+    admin_redirect = admin_check(request)
+    if admin_redirect:
+        return admin_redirect
+        
     try:
         games = models.Games.objects.filter(is_active=True)
         
-        # Pre-calculate discounted prices
         for game in games:
             if game.discount_code:
                 discount_amount = (game.price * game.discount_code.discount_percentage) / 100
@@ -196,10 +242,13 @@ def shop(request):
 
 def single(request, game_id):
     """Renders the single.html page with game details."""
+    admin_redirect = admin_check(request)
+    if admin_redirect:
+        return admin_redirect
+        
     try:
         game = models.Games.objects.get(pk=game_id, is_active=True)
-        
-        # Calculate discounted price if applicable
+
         if game.discount_code:
             discount_amount = (game.price * game.discount_code.discount_percentage) / 100
             game.discounted_price = game.price - discount_amount
@@ -222,6 +271,7 @@ def single(request, game_id):
         return redirect('store:shop')
 
 
+@user_required
 def cart(request):
     """Renders the cart.html page."""
     return render(request, 'store/cart.html')
@@ -229,6 +279,10 @@ def cart(request):
 
 def contact(request):
     """Renders the contact.html page."""
+    admin_redirect = admin_check(request)
+    if admin_redirect:
+        return admin_redirect
+        
     try:
         context = {
             'user': request.user,
@@ -238,3 +292,14 @@ def contact(request):
         messages.error(request, 'An error occurred while loading the page. Please try again.')
         print(f"Error in contact view: {str(e)}")
         return render(request, 'store/contact.html', {'user': request.user})
+
+
+class CustomLoginView(LoginView):
+    """Custom login view for regular users."""
+    template_name = 'store/auth.html'
+    
+    def form_valid(self, form):
+        user = form.get_user()
+        if user.is_staff or user.is_superuser:
+            return redirect('/admin/')
+        return super().form_valid(form)
