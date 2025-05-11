@@ -20,7 +20,6 @@ from store.views import check_admin_access
 
 urlpatterns = [
     path('admin/login/', check_admin_access),
-    path('admin/', check_admin_access),
     path('admin/', admin.site.urls),
     path('', include('store.urls', namespace='store')),
 ]

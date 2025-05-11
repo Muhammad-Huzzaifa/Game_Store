@@ -34,7 +34,7 @@ def check_admin_access(request):
     elif not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, 'You do not have permission to access the admin interface.')
         return redirect('store:index')
-    return redirect('/admin/')
+    return None
 
 
 def index(request):
