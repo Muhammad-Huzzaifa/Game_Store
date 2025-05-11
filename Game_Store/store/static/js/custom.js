@@ -59,7 +59,7 @@ $(document).ready(() =>
 	//endregion
 
 	//region Page location
-	if(location.indexOf("index") !== -1 || location == "/gamehut/")
+	if(location.indexOf("index") !== -1 || location == "/gamehut/"||location=='/')
 	{
 		getData('allGames', displayHomeSlider);
 		getData('allGames', displayAllSections);
@@ -447,7 +447,6 @@ $(document).ready(() =>
 						<h6>${getHeadline(game)}</h6>
 						<h1>${game.name}</h1>
 						<p>${getInfoText(game)}</p>
-						<div class="red_button shop_now_button openSingle p-2" data-id="${game.id}"><a href="single.html">Buy ${game.name}</a></div>
 						</div>
 						</div>
 						</div>
