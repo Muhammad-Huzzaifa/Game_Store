@@ -59,7 +59,7 @@ $(document).ready(() =>
 	//endregion
 
 	//region Page location
-	if(location.indexOf("index") !== -1 || location == "/gamehut/")
+	if(location.indexOf("index") !== -1 || location == "/gamehut/"||location=='/')
 	{
 		getData('allGames', displayHomeSlider);
 		getData('allGames', displayAllSections);
