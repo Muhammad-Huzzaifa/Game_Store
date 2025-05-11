@@ -4,7 +4,6 @@ CREATE TABLE discount_codes (
     discount_percentage INT NOT NULL CHECK (discount_percentage BETWEEN 1 AND 100),
     valid_from DATETIME NOT NULL,
     valid_to DATETIME NOT NULL,
-    is_active BIT NOT NULL DEFAULT 1,
     CHECK (valid_to > valid_from)
 );
 
@@ -159,7 +158,6 @@ BEGIN
 	ON i.game_id=g.game_id
 	LEFT JOIN discount_codes dc
 	ON g.discount_code_id=dc.discount_code_id
-		AND dc.is_active = 1
 		AND GETDATE() BETWEEN dc.valid_from AND dc.valid_to;
 
 	UPDATE o
@@ -172,7 +170,6 @@ BEGIN
 		ON i.game_id=g.game_id
 		LEFT JOIN discount_codes dc
 		ON g.discount_code_id=dc.discount_code_id
-			AND dc.is_active = 1
 			AND GETDATE() BETWEEN dc.valid_from AND dc.valid_to
 		GROUP BY i.order_id
 	) AS c

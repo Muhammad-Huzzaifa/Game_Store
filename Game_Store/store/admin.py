@@ -1,51 +1,154 @@
 from django.contrib import admin
+from django import forms
+from django.utils.html import format_html
+from django.utils.timezone import now
 from . import models
 
-@admin.register(models.DiscountCodes)
-class DiscountCodesAdmin(admin.ModelAdmin):
-    list_display = ('discount_code_id', 'code', 'discount_percentage', 'valid_from', 'valid_to', 'is_active')
-    search_fields = ('code',)
-    list_filter = ('is_active', 'valid_from', 'valid_to')
+
+class GameWithInventoryForm(forms.ModelForm):
+    stock_quantity = forms.IntegerField(label='Stock Quantity', required=False)
+
+    class Meta:
+        model = models.Games
+        exclude = ['game_id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            try:
+                inventory = models.Inventory.objects.get(game=self.instance)
+                self.fields['stock_quantity'].initial = inventory.stock_quantity
+            except models.Inventory.DoesNotExist:
+                self.fields['stock_quantity'].initial = 0
+
+        if 'discount_code' in self.fields:
+            self.fields['discount_code'].queryset = models.DiscountCodes.objects.all()
+            self.fields['discount_code'].label_from_instance = lambda obj: (
+                f"{'✅' if obj.valid_from <= now() <= obj.valid_to else '❌'} {obj.code} ({obj.discount_percentage}%)"
+            )
+
+    def save(self, commit=True):
+        game = super().save(commit)
+        stock_quantity = self.cleaned_data.get('stock_quantity', 0)
+        inventory, _ = models.Inventory.objects.get_or_create(game=game)
+        inventory.stock_quantity = stock_quantity
+        inventory.save()
+        return game
 
 @admin.register(models.Games)
-class GamesAdmin(admin.ModelAdmin):
-    list_display = ('game_id', 'title', 'genre', 'platform', 'developer', 'publisher', 
-                   'release_date', 'price', 'is_active', 'discount_code')
-    search_fields = ('title', 'genre', 'developer', 'publisher')
-    list_filter = ('genre', 'platform', 'is_active', 'release_date')
+class GameAdmin(admin.ModelAdmin):
+    form = GameWithInventoryForm
 
-@admin.register(models.Inventory)
-class InventoryAdmin(admin.ModelAdmin):
-    list_display = ('inventory_id', 'game', 'stock_quantity')
-    search_fields = ('game__title',)
-    list_filter = ('stock_quantity',)
+    list_display = [
+        'title', 'genre', 'platform', 'price', 'is_active', 'release_date',
+        'display_cover_image', 'get_stock_quantity', 'get_discount_percentage'
+    ]
+    readonly_fields = ['display_cover_image']
+    search_fields = ['title', 'description', 'developer', 'publisher']
+    list_filter = ['platform', 'genre', 'is_active']
 
-@admin.register(models.Carts)
-class CartsAdmin(admin.ModelAdmin):
-    list_display = ('cart_id', 'user', 'created_at')
-    search_fields = ('user__username',)
-    list_filter = ('created_at',)
+    def display_cover_image(self, obj):
+        return format_html(f'<img src="{obj.cover_image}" width="80" height="80" />') if obj.cover_image else "-"
+    display_cover_image.short_description = 'Cover Image'
 
-@admin.register(models.CartItems)
-class CartItemsAdmin(admin.ModelAdmin):
-    list_display = ('cart_item_id', 'cart', 'game', 'quantity')
-    search_fields = ('cart__user__username', 'game__title')
-    list_filter = ('quantity',)
+    def get_stock_quantity(self, obj):
+        try:
+            return models.Inventory.objects.get(game=obj).stock_quantity
+        except models.Inventory.DoesNotExist:
+            return 0
+    get_stock_quantity.short_description = 'Stock Quantity'    
+    
+    def get_discount_percentage(self, obj):
+        discount = obj.discount_code
+        if discount and discount.valid_from <= now() <= discount.valid_to:
+            return f"{discount.discount_percentage}%"
+        return "0%"
+    get_discount_percentage.short_description = 'Discount %'
+
+
+class DiscountGamesForm(forms.ModelForm):
+    games = forms.ModelMultipleChoiceField(
+        queryset=models.Games.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label="Select Games to Apply This Discount"
+    )
+
+    class Meta:
+        model = models.DiscountCodes
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields['games'].initial = models.Games.objects.filter(discount_code=self.instance)
+
+        def label_with_image(obj):
+            return format_html(
+                '<div style="display:flex; align-items:center; gap:10px;">'
+                '<img src="{}" style="height:60px; width:auto; border-radius:4px;" />'
+                '<span><strong>{}</strong></span>'
+                '</div>',
+                obj.cover_image,
+                obj.title
+            )
+
+        self.fields['games'].label_from_instance = label_with_image
+
+    def save(self, commit=True):
+        discount = super().save(commit=False)
+        if commit:
+            discount.save()
+
+        selected_games = self.cleaned_data['games']
+        models.Games.objects.filter(discount_code=discount).update(discount_code=None)
+        selected_games.update(discount_code=discount)
+        return discount
+
+@admin.register(models.DiscountCodes)
+class DiscountCodeAdmin(admin.ModelAdmin):
+    form = DiscountGamesForm
+    list_display = ['code', 'discount_percentage', 'valid_from', 'valid_to', 'is_active_display']
+    search_fields = ['code']
+    list_filter = ['valid_from', 'valid_to']
+
+    def is_active_display(self, obj):
+        return obj.valid_from <= now() <= obj.valid_to
+    is_active_display.boolean = True 
+    is_active_display.short_description = 'Is Active'
+
+
+class OrderItemsInline(admin.TabularInline):
+    model = models.OrderItems
+    extra = 0
+    can_delete = False
+    readonly_fields = ('game', 'game_title', 'quantity', 'price_at_purchase')
+    verbose_name_plural = "Order Items"
+
+    def game_title(self, obj):
+        return obj.game.title
+    game_title.short_description = 'Game Title' 
+
+class PaymentsInline(admin.StackedInline):
+    model = models.Payments
+    extra = 0
+    can_delete = False
+
+    readonly_fields = ('payment_date', 'payment_method')
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
 
 @admin.register(models.Orders)
 class OrdersAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'user', 'order_date', 'total_amount', 'status')
-    search_fields = ('user__username', 'order_id')
-    list_filter = ('status', 'order_date')
+    list_display = ['user', 'order_date', 'status', 'total_amount']
+    list_filter = ['status', 'order_date']
+    search_fields = ['order_id', 'user__username']
+    inlines = [OrderItemsInline, PaymentsInline]
 
-@admin.register(models.OrderItems)
-class OrderItemsAdmin(admin.ModelAdmin):
-    list_display = ('order_item_id', 'order', 'game', 'quantity', 'price_at_purchase')
-    search_fields = ('order__user__username', 'game__title')
-    list_filter = ('quantity', 'price_at_purchase')
-
-@admin.register(models.Payments)
-class PaymentsAdmin(admin.ModelAdmin):
-    list_display = ('payment_id', 'order', 'payment_date', 'payment_status', 'payment_method')
-    search_fields = ('order__user__username', 'payment_status')
-    list_filter = ('payment_status', 'payment_method', 'payment_date')
+    readonly_fields = ['user', 'order_date', 'total_amount']

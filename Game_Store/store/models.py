@@ -9,7 +9,6 @@ class DiscountCodes(models.Model):
     discount_percentage = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
-    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.discount_code_id)
@@ -85,11 +84,16 @@ class CartItems(models.Model):
 
 
 class Orders(models.Model):
+    ORDER_STATUS_CHOICES = [
+        ('Processing', 'Processing'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+    ]
     order_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    status = models.CharField(max_length=50)
+    status = models.CharField(max_length=50, choices=ORDER_STATUS_CHOICES)
 
     def __str__(self):
         return str(self.order_id)
@@ -121,11 +125,21 @@ class OrderItems(models.Model):
 
 
 class Payments(models.Model):
+    PAYMENT_STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+        ('Failed', 'Failed'),
+    ]
+    PAYMENT_METHOD_CHOICES = [
+        ('Credit Card', 'Credit Card'),
+        ('Bank Transfer', 'Bank Transfer'),
+        ('Cash', 'Cash'),
+    ]
     payment_id = models.AutoField(primary_key=True)
     order = models.OneToOneField(Orders, models.CASCADE)
     payment_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
-    payment_status = models.CharField(max_length=50)
-    payment_method = models.CharField(max_length=50)
+    payment_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
 
     def __str__(self):
         return str(self.payment_id)
