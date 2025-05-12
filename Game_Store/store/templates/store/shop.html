@@ -59,10 +59,10 @@
 						<div class="slidecontainer mx-auto">
 							<form action="" method="GET">
 								<input type="range" min="0" max="60" value="0" class="slider" id="priceFrom">
-								<label for="priceFrom" id="labelMin">Min: <i class="fas fa-euro-sign"></i> <output
+								<label for="priceFrom" id="labelMin">Min: <i class="fas fa-dollar-sign"></i> <output
 										id="from">0</output></label>
 								<input type="range" min="0" max="60" value="60" class="slider" id="priceTo">
-								<label for="priceTo" id="labelMax">Max: <i class="fas fa-euro-sign"></i> <output
+								<label for="priceTo" id="labelMax">Max: <i class="fas fa-dollar-sign"></i> <output
 										id="to">60</output></label>
 							</form>
 						</div>
@@ -71,31 +71,22 @@
 				<div id="categories-container" class="d-block">
 					<span id="filterCat" class="d-flex justify-content-between align-items-center p-3 hoverFilter">
 						<span>Categories</span>
-						<span class="circ d-flex justify-content-center align-items-center"><i
-								class="fas fa-chevron-up"></i></span>
+						<span class="circ d-flex justify-content-center align-items-center">
+							<i class="fas fa-chevron-up"></i>
+						</span>
 					</span>
 					<ul class="whiteChb" id="categoryChb">
-
-					</ul>
-				</div>
-				<div id="more-filters-container" class="d-block">
-					<span id="more-filters" class="d-flex justify-content-between align-items-center p-3 hoverFilter">
-						<span>Game Modes</span>
-						<span class="circ d-flex justify-content-center align-items-center"><i
-								class="fas fa-chevron-up"></i></span>
-					</span>
-					<ul id="mode" class="whiteChb">
-
-					</ul>
-				</div>
-				<div id="other-filter-container" class="d-block">
-					<span id="filter-other" class="d-flex justify-content-between align-items-center p-3 hoverFilter">
-						<span>Other</span>
-						<span class="circ d-flex justify-content-center align-items-center"><i
-								class="fas fa-chevron-up"></i></span>
-					</span>
-					<ul class="whiteChb" id="otherFilter">
-
+						<div class="p-3">
+							{% for category in categories %}
+							<li class="d-flex align-items-center justify-content-start">
+								<label for="{{ category }}" class="customChb w-100"> {{ category }}
+									<input type="checkbox" id="{{ category }}" value="{{ category }}"
+										name="categories[]">
+									<span class="checkmark"></span>
+								</label>
+							</li>
+							{% endfor %}
+						</div>
 					</ul>
 				</div>
 			</div>
@@ -106,11 +97,11 @@
 				<div class="col-12 col-lg-5 p-0 mb-3 mt-3 mb-lg-0 mt-lg-0 col">
 					<input type="text" name="search" id="search" placeholder="Search by name" class="p-3">
 				</div>
-				<div class="col-12 col-md p-0 mb-3 mb-md-0 px-lg-3 px-0">
-					<select id="numberOfProducts" name="numberOfProducts" class="p-3 w-100 form-control h-100"
+				<div class="col-12 col-md p-0 mb-3 mb-md-0 px-lg-3 px-0"> <select id="numberOfProducts"
+						name="numberOfProducts" class="p-3 w-100 form-control h-100"
 						aria-label="Number of products per page">
-						<option value="9">Items per page: 9</option>
 						<option value="6">Items per page: 6</option>
+						<option value="9">Items per page: 9</option>
 						<option value="12">Items per page: 12</option>
 					</select>
 				</div>
@@ -139,8 +130,8 @@
 					</div>
 
 					{% endif %}
-					<a href="{% url 'store:single' game.game_id %}" class="openSingle"
-						data-id="{{ game.game_id }}" style="position: relative;">
+					<a href="{% url 'store:single' game.game_id %}" class="openSingle" data-id="{{ game.game_id }}"
+						style="position: relative;">
 						{% if game.discount_code %}
 						<div class="ribbon"><span>SALE!</span></div>
 						{% endif %}
@@ -153,10 +144,10 @@
 								<li class="price">
 									{% if game.discount_code %}
 									<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
-									<s class="text-muted"><i class="fas fa-euro-sign"></i>{{ game.price }}</s>
-									<span><i class="fas fa-euro-sign"></i>{{ game.discounted_price }}</span>
+									<s class="text-muted"><i class="fas fa-dollar-sign"></i>{{ game.price }}</s>
+									<span><i class="fas fa-dollar-sign"></i>{{ game.discounted_price }}</span>
 									{% else %}
-									<i class="fas fa-euro-sign"></i>{{ game.price }}
+									<i class="fas fa-dollar-sign"></i>{{ game.price }}
 									{% endif %}
 								</li>
 							</ul>
@@ -166,7 +157,13 @@
 				{% endfor %}
 			</div>
 			<div class="col-12 d-flex justify-content-center align-items-center p-4" id="pag">
-
+				{% load store_filters %}
+				<ul class="d-flex flex-row" id="pagination">
+					{% for page_num in total_pages|get_range %}
+					<li class="pagination-item mr-2 {% if page_num == current_page %}active-pag{% endif %}"
+						id="pag-{{ page_num }}">{{ page_num }}</li>
+					{% endfor %}
+				</ul>
 			</div>
 		</div>
 	</div>

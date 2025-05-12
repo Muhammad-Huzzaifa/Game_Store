@@ -12,7 +12,7 @@
                 "alt" : "gameRidersRepublic"
             }
         },
-        "releaseDate" : "2021-08-10"
+        "releaseDate" : "2026-08-10"
     },
     {
         "id" : 2,
@@ -27,7 +27,7 @@
                 "alt" : "gameFarCry6"
             }
         },
-        "releaseDate" : "2021-04-30"
+        "releaseDate" : "2026-04-30"
     },
     {
         "id" : 3,
@@ -42,7 +42,7 @@
                 "alt" : "biomutantGame"
             }
         },
-        "releaseDate" : "2021-06-11"
+        "releaseDate" : "2026-06-11"
     },
     {
         "id" : 4,
@@ -57,7 +57,7 @@
                 "alt" : "gameVampireMasqueradeBloodlines2"
             }
         },
-        "releaseDate" : "2021-10-28"
+        "releaseDate" : "2026-10-28"
     },
     {
         "id" : 5,
@@ -72,6 +72,6 @@
                 "alt" : "gameHumankind"
             }
         },
-        "releaseDate" : "2021-07-30"
+        "releaseDate" : "2026-07-30"
     }
 ]

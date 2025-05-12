@@ -36,17 +36,23 @@ class GameWithInventoryForm(forms.ModelForm):
         inventory.save()
         return game
 
+
+class GenreInline(admin.TabularInline):
+    model = models.Genres
+    extra = 1
+
 @admin.register(models.Games)
 class GameAdmin(admin.ModelAdmin):
     form = GameWithInventoryForm
+    inlines = [GenreInline]
 
     list_display = [
-        'title', 'genre', 'platform', 'price', 'is_active', 'release_date',
+        'title', 'platform', 'price', 'is_active', 'release_date',
         'display_cover_image', 'get_stock_quantity', 'get_discount_percentage'
     ]
     readonly_fields = ['display_cover_image']
     search_fields = ['title', 'description', 'developer', 'publisher']
-    list_filter = ['platform', 'genre', 'is_active']
+    list_filter = ['platform', 'is_active']
 
     def display_cover_image(self, obj):
         return format_html(f'<img src="{obj.cover_image}" width="80" height="80" />') if obj.cover_image else "-"

@@ -26,17 +26,3 @@ def user_required(view_func):
             return redirect('/admin/')
         return view_func(request, *args, **kwargs)
     return wrapped
-
-
-def admin_required(view_func):
-    """Decorator for views that should only be accessed by admin users."""
-    @wraps(view_func)
-    def wrapped(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.error(request, 'Please log in to access this page.')
-            return redirect('store:auth')
-        if not request.user.is_staff:
-            messages.error(request, 'You do not have permission to access this page.')
-            return redirect('store:index')
-        return view_func(request, *args, **kwargs)
-    return wrapped

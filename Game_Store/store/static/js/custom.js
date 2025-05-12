@@ -1,96 +1,51 @@
-$(window).on('load',() => {
+$(window).on('load', () => {
 	$('.loader-flex-fix').fadeOut();
 })
-$(document).ready(() =>
-{
-	window.onerror = (message, url , line) => {
+$(document).ready(() => {
+	window.onerror = (message, url, line) => {
 		console.log('Poruka: ' + message);
 		console.log('URL: ' + url);
 		console.log('Linija u kojoj je nastala greska: ' + line);
 	}
 	"use strict";
-	//region Global variables
 
-	//region Template variables
 	const header = $('.header');
 	const hamburger = $('.hamburger_container');
 	const menu = $('.hamburger_menu');
 	var menuActive = false;
 	const hamburgerClose = $('.hamburger_close');
 	const fsOverlay = $('.fs_menu_overlay');
-	//endregion
 
-	//region My variables
-	//region Location
 	const location = window.location.pathname;
-	//endregion
-	//region Data storage
-	var allGames, categories, modes, otherFilters;
-	//endregion
-	//region Rotate Font Awesome
+	var allGames;
 	var degreesCat = 0, degreesPrice = 0, degreesMore = 0, degreesOther = 0;
-	//endregion
-	//region Store max items
 	var maxItemsStore = 9;
-	//endregion
-	//region Filter
 	var filtered;
 	var checkedCat = [];
 	var checkedMode = [];
 	var checkedOther = [];
-	//endregion
-	//region Price
 	var priceTo = 60;
 	var priceFrom = 0;
-	//endregion
-	//region Newsletter
-	var news = []; // ubacivanje mejlova za newsletter
-	//endregion
-	//endregion
-
-	//endregion
-
-	//region Every page init - Header & Menu - Newsletter check
+	var news = [];
 	setHeader();
 	initMenu();
-	checkCookieNewsletter();// dohvatamo kolacice za newsletter, tj ako postoje vec uneti mejlovi
+	checkCookieNewsletter();
 	checkCartAmount();
 	getData('navigation', displayNav);
-	//endregion
-
-	//region Page location
-	if(location.indexOf("index") !== -1 || location == "/gamehut/"||location=='/')
-	{
+	if (location.indexOf("index") !== -1 || location == "/gamehut/" || location == '/') {
 		getData('allGames', displayHomeSlider);
 		getData('allGames', displayAllSections);
 		getData('comingSoon', displayComingSoon);
 		removePng();
 	}
-	else if(location.indexOf("single") !== -1)
-	{
+	else if (location.indexOf("single") !== -1) {
 		getData('allGames', displaySingle);
 	}
-	else if(location.indexOf("shop") !== -1)
-	{
-		getData('allGames', displayStoreFirst)
-		.then( (data) => {
-			//console.log(data) ispisuje sve igrice potrebne za ispisivanje filtera
-			try{
-				if(!data.length){
-					throw 'Can not retrieve data.'
-				}
-				getCategories(displayCheckbox, "categoryChb", categories, "categories");
-				getCategories(displayCheckbox, "mode", modes, "modes");
-				getCategories(displayCheckbox, "otherFilter", otherFilters, "otherFilters");
-			}
-			catch (e){
-				console.error(e.message);
-			}
-		})
+	else if (location.indexOf("shop") !== -1) {
 		getData('comingSoon', displayComingSoon);
 		filterResponsive();
 	}
-	else if(location.indexOf("contact") !== -1){
+	else if (location.indexOf("contact") !== -1) {
 		const form = document.getElementById('contact');
 		const fullName = document.getElementById('input_name');
 		const mail = document.getElementById('input_email');
@@ -103,7 +58,7 @@ $(document).ready(() =>
 		fullName.onchange = () => {
 			checkInputValues(fullName, 'name', fullNameReg, 'Name cannot be empty.', 'First name/last name must start with capital letter');
 		};
-		mail.onchange = () =>{
+		mail.onchange = () => {
 			checkInputValues(mail, 'mail', mailReg, 'Mail cannot be empty.', 'Mail is not in a good format. (E.q: johndoe5@gmail.com)');
 		};
 		subject.onchange = () => {
@@ -112,28 +67,28 @@ $(document).ready(() =>
 		message.onchange = () => {
 			checkMessage();
 		};
-		form.onsubmit = (event) =>{
+		form.onsubmit = (event) => {
 			event.preventDefault();
 			correctName = checkInputValues(fullName, 'name', fullNameReg, 'Name cannot be empty.', 'First name/last name must start with capital letter');
 			correctMail = checkInputValues(mail, 'mail', mailReg, 'Mail cannot be empty.', 'Mail is not in a good format. (E.q: johndoe5@gmail.com)');
 			correctSubject = checkInputValues(subject, 'subject', subjectReg, 'Subject cannot be empty.', 'Subject must start with capital letter.');
 			correctMessage = checkMessage();
-			if(correctName && correctMail && correctSubject && correctMessage){
+			if (correctName && correctMail && correctSubject && correctMessage) {
 				let isSent = checkMessageCookie();
-				if(isSent.val){
+				if (isSent.val) {
 					displayMessageModal(`You must wait ${isSent.msg} minutes to send another message.`);
 				}
-				else{
+				else {
 					displayMessageModal('You have successfully sent a message.');
 					setMessageCookie('message', 'sent', 1);
 				}
 			}
 		};
-		function checkMessage(){
+		function checkMessage() {
 			let val = false;
 			let err;
-			if(message.value.length < messageLength){
-				if(!message.value.length){
+			if (message.value.length < messageLength) {
+				if (!message.value.length) {
 					err = 'Message cannot be empty.';
 				}
 				else {
@@ -142,34 +97,33 @@ $(document).ready(() =>
 				$('.message').html(err);
 				$(message).css('border', '2px solid #e21e21');
 			}
-			else{
+			else {
 				$(message).css('border', '2px solid green');
 				$('.message').html('');
 				val = true;
 			}
 			return val;
 		}
-		var messageExpireTime;
-		function setMessageCookie(name, value, duration){ // cookie za vremensko ogranicenje slanja ponovnih poruka
+		function setMessageCookie(name, value, duration) {
 			let date = new Date();
 			date.setUTCHours(date.getUTCHours() + duration);
 			document.cookie = `${name}=${value}; expires=${date.toUTCString()}; secure`
 			document.cookie = `msgTime=${date.toUTCString()}; expires=${date.toUTCString()}; secure`
 		}
-		function checkMessageCookie(){
+		function checkMessageCookie() {
 			let cookie = document.cookie.split('; ').find(message => message.startsWith('message'));
-			if(cookie){
+			if (cookie) {
 				let msgTime = document.cookie.split('; ').find(message => message.startsWith('msgTime'));
 				let date = new Date(msgTime.split('=')[1]);
 				let now = new Date();
 				let difference = date.getTime() - now.getTime();
 				let minutesLeft = Math.round(difference / 60000);
 				return {
-					val : true,
-					msg : minutesLeft
+					val: true,
+					msg: minutesLeft
 				};
 			}
-			else{
+			else {
 				return false;
 			}
 		}
@@ -281,93 +235,93 @@ $(document).ready(() =>
 		const cvvReg = /^[0-9]{3}$/;
 		const dateReg = /^([0][1-9]|[1-2][0-2])\/([2][1-6])$/;
 		let brojGresaka = 0;
-		if(!fullNameReg.test(name.val())){
-			if(!$('#nameErr').length){
+		if (!fullNameReg.test(name.val())) {
+			if (!$('#nameErr').length) {
 				let err = "<p id='nameErr' class='text-danger'>First name/last name must start with capital letter and must contain only letters.</p>";
 				name.css("border", "2px solid red");
 				$(err).insertAfter(name);
 			}
 			brojGresaka++;
 		}
-		else{
+		else {
 			name.css("border", "2px solid gray");
 			$('#nameErr').remove();
 		}
-		if(!mailReg.test(email.val())){
-			if(!$('#mailErr').length){
+		if (!mailReg.test(email.val())) {
+			if (!$('#mailErr').length) {
 				let err = "<p id='mailErr' class='text-danger'>E.q. johndoe@gmail.com</p>";
 				email.css("border", "2px solid red");
 				$(err).insertAfter(email);
 			}
 			brojGresaka++;
 		}
-		else{
+		else {
 			email.css("border", "2px solid gray");
 			$('#mailErr').remove();
 		}
-		if(!cardReg.test(card.val())){
-			if(!$('#cardErr').length){
+		if (!cardReg.test(card.val())) {
+			if (!$('#cardErr').length) {
 				let err = "<p id='cardErr' class='text-danger'>Credit card number must contain 16 digits only starting with 5.</p>";
 				card.css("border", "2px solid red");
 				$(err).insertAfter(card);
 			}
 			brojGresaka++;
 		}
-		else{
+		else {
 			card.css("border", "2px solid gray");
 			$('#cardErr').remove();
 		}
-		if(!cvvReg.test(cvv.val())){
-			if(!$('#cvvErr').length){
+		if (!cvvReg.test(cvv.val())) {
+			if (!$('#cvvErr').length) {
 				let err = "<p id='cvvErr' class='text-danger'>CVV is found on backside of your credit card.</p>";
 				cvv.css("border", "2px solid red");
 				$(err).insertAfter(cvv);
 			}
 			brojGresaka++;
 		}
-		else{
+		else {
 			cvv.css("border", "2px solid gray");
 			$('#cvvErr').remove();
 		}
-		if(!dateReg.test(date.val())){
-			if(!$('#dateErr').length){
+		if (!dateReg.test(date.val())) {
+			if (!$('#dateErr').length) {
 				let err = "<p id='dateErr' class='text-danger'>Expiration date is found on front of you credit card.</p>";
 				date.css("border", "2px solid red");
 				$(err).insertAfter(date);
 			}
 			brojGresaka++;
 		}
-		else{
+		else {
 			date.css("border", "2px solid gray");
 			$('#dateErr').remove();
 		}
-		if(!brojGresaka){
-			$("#infoUser").html(name.val().split(' ')[0] + ', you have successfully ordered '+ JSON.parse(localStorage.getItem('addedGame')).length + ' games. Check your email for more information.');
+		if (!brojGresaka) {
+			$("#infoUser").html(name.val().split(' ')[0] + ', you have successfully ordered ' + JSON.parse(localStorage.getItem('addedGame')).length + ' games. Check your email for more information.');
 			$("#checkoutSuccess").modal('show');
 			localStorage.removeItem('addedGame');
-			setTimeout(function(){
+			setTimeout(function () {
 				window.location.replace('https://adamnik101.github.io/gamehut/index.html');
 			}, 5000);
 		}
 	}
 	//region Ajax Call jQuery
-	function getData(path, callback, storage){
-		try{
-			return new Promise( (resolve, reject) => {
+	function getData(path, callback, storage) {
+		try {
+			return new Promise((resolve, reject) => {
 				$.ajax({
-					url : '/static/js/data/' + path + '.json', // Prepend /static/
-					dataType : 'json',
-					method : 'GET',
-					success : (result) => {
-						if(path == 'allGames'){
-							resolve(allGames = result) 
+					url: '/static/js/data/' + path + '.json', // Prepend /static/
+					dataType: 'json',
+					method: 'GET',
+					success: (result) => {
+						if (path == 'allGames') {
+							resolve(allGames = result)
 						}
-						if(location.indexOf('single') != -1){
+						if (location.indexOf('single') != -1) {
 							var owl_single = $(".single");
 							owl_single.owlCarousel(
 								{
-									items:1,
-									loop : true,
+									items: 1,
+									loop: true,
 									autoplay: true,
 									mouseDrag: true,
 									touchDrag: true,
@@ -379,14 +333,14 @@ $(document).ready(() =>
 						}
 						callback(result);
 					},
-					error : (xhr, status, err) => {
+					error: (xhr, status, err) => {
 						reject(console.error(err));
 						throw ('Greska pri dohvatanju podataka iz baze.');
 					}
 				})
 			})
 		}
-		catch (e){
+		catch (e) {
 			console.error(e.message);
 		}
 	}
@@ -408,39 +362,37 @@ $(document).ready(() =>
 			console.error(e);
 		}
 	}
-	
+
 	//endregion
 
 	//region Window: resize & Document: scroll
-	$(window).on('resize', function()
-	{
+	$(window).on('resize', function () {
 		setHeader();
-		if(location.indexOf("index") != -1 || location == "/Web_2_sajt/"){
+		if (location.indexOf("index") != -1 || location == "/Web_2_sajt/") {
 			removePng();
 		}
-		if(location.indexOf("shop") != -1){
+		if (location.indexOf("shop") != -1) {
 			filterResponsive();
 		}
 	});
-	$(document).on('scroll', function()
-	{
+	$(document).on('scroll', function () {
 		setHeader();
 	});
 	//endregion
-	$('#numberOfProducts').on("change", function (){
+	$('#numberOfProducts').on("change", function () {
 		let value = parseInt(this.value);
 		changeNumber(value);
-		displayStoreFirst(allGames);
+		// displayStoreFirst(allGames);
 	})
 
 	//region Functions
 
 	//region Homepage slider
-	function displayHomeSlider(data){
+	function displayHomeSlider(data) {
 		let content = '<div class="owl-carousel">';
-		for(let game of data){
+		for (let game of data) {
 			let gameToGet = game.name.toLowerCase();
-			if(gameToGet.indexOf('minecraft') != - 1 || gameToGet.indexOf('redemption ii') != -1 || gameToGet.indexOf('heat') != -1){
+			if (gameToGet.indexOf('minecraft') != - 1 || gameToGet.indexOf('redemption ii') != -1 || gameToGet.indexOf('heat') != -1) {
 				content += `<div class="sliderTekst sliderImage">
 						<div class="container fill_height">
 						<div class="row align-items-center fill_height">
@@ -459,47 +411,46 @@ $(document).ready(() =>
 		content += '</div>'
 		$('#slider').html(content);
 		let backImg = $('.sliderImage');
-		for(let i = 0; i < backImg.length; i++) {
+		for (let i = 0; i < backImg.length; i++) {
 			backImg[i].style.setProperty('--url', `url('/static/images/slider_${i + 1}.jpg')`);
 		}
-		
+
 		owlDisplay();
 	}
-	function owlDisplay()
-	{
+	function owlDisplay() {
 		var owl = $('.owl-carousel');
 		owl.owlCarousel(
 			{
-				items:1,
-				loop : true,
+				items: 1,
+				loop: true,
 				mouseDrag: false,
 				touchDrag: false,
 				dots: false,
 			}
 		);
-		function progress(){
-			$("#progressBar").css("width","0%");
+		function progress() {
+			$("#progressBar").css("width", "0%");
 			$("#progressBar").animate({
-				width:"100%"
-			},10000,"linear", () => {
+				width: "100%"
+			}, 10000, "linear", () => {
 				progress();
 				owl.trigger('next.owl.carousel');
 			});
 		}
 		progress();
 	}
-	function getHeadline(data){
-		if(data.newRelease.value){
+	function getHeadline(data) {
+		if (data.newRelease.value) {
 			return 'Available now!'
 		}
-		else if(data.price.discount.isDiscounted){
+		else if (data.price.discount.isDiscounted) {
 			return 'On sale!'
 		}
-		else{
+		else {
 			return 'Check out!'
 		}
 	}
-	function getInfoText(data){
+	function getInfoText(data) {
 		let duzina = data.info.text.length;
 		return data.info.text[0][1];
 	}
@@ -507,80 +458,60 @@ $(document).ready(() =>
 
 
 	//region Header
-	function setHeader()
-	{
+	function setHeader() {
 
-		if($(window).scrollTop() > 100)
-		{
-			header.css({'top':"-50px"});
+		if ($(window).scrollTop() > 100) {
+			header.css({ 'top': "-50px" });
 		}
-		else
-		{
-			header.css({'top':"0"});
+		else {
+			header.css({ 'top': "0" });
 		}
 
-		if(window.innerWidth > 991 && menuActive)
-		{
+		if (window.innerWidth > 991 && menuActive) {
 			closeMenu();
 		}
 	};
 	//endregion
 
 	//region Menu
-	function initMenu()
-	{
-		if(hamburger.length)
-		{
-			hamburger.on('click', function()
-			{
-				if(!menuActive)
-				{
+	function initMenu() {
+		if (hamburger.length) {
+			hamburger.on('click', function () {
+				if (!menuActive) {
 					openMenu();
 				}
 			});
 		}
 
-		if(fsOverlay.length)
-		{
-			fsOverlay.on('click', function()
-			{
-				if(menuActive)
-				{
+		if (fsOverlay.length) {
+			fsOverlay.on('click', function () {
+				if (menuActive) {
 					closeMenu();
 				}
 			});
 		}
 
-		if(hamburgerClose.length)
-		{
-			hamburgerClose.on('click', function()
-			{
-				if(menuActive)
-				{
+		if (hamburgerClose.length) {
+			hamburgerClose.on('click', function () {
+				if (menuActive) {
 					closeMenu();
 				}
 			});
 		}
 
-		if($('.menu_item').length)
-		{
+		if ($('.menu_item').length) {
 			var items = document.getElementsByClassName('menu_item');
 			var i;
 
-			for(i = 0; i < items.length; i++)
-			{
-				if(items[i].classList.contains("has-children"))
-				{
-					items[i].onclick = () =>
-					{
+			for (i = 0; i < items.length; i++) {
+				if (items[i].classList.contains("has-children")) {
+					items[i].onclick = () => {
 						this.classList.toggle("active");
 						var panel = this.children[1];
-						if(panel.style.maxHeight)
-						{
+						if (panel.style.maxHeight) {
 							panel.style.maxHeight = null;
 						}
-						else
-						{
+						else {
 							panel.style.maxHeight = panel.scrollHeight + "px";
 						}
 					}
@@ -588,15 +519,13 @@ $(document).ready(() =>
 			}
 		}
 	};
-	function openMenu()
-	{
+	function openMenu() {
 		menu.addClass('active');
 		menu.css("box-shadow", "rgb(0 0 0 / 50%) 0px 0px 0px 10000px");
 		fsOverlay.css('pointer-events', "auto");
 		menuActive = true;
 	};
-	function closeMenu()
-	{
+	function closeMenu() {
 		menu.removeClass('active');
 		menu.css("box-shadow", "none");
 		fsOverlay.css('pointer-events', "none");
@@ -605,100 +534,51 @@ $(document).ready(() =>
 	//endregion
 
 	//region Remove png on smaller resolution - homepage
-	function removePng()
-	{
-		if(window.innerWidth < 992){
+	function removePng() {
+		if (window.innerWidth < 992) {
 			// $(".deal_ofthe_week_img img").hide();
 			$(".deal_ofthe_week").height("auto")
 		}
-		else{
+		else {
 			$(".deal_ofthe_week_img img").show();
 		}
 	};
-	//endregion
-
-	//region Homepage display sections
-	//endregion
-
-	//region Display store & checkboxes
-	function displayCheckbox(games,data, div)
-	{
-		let display = "<div class='p-3'>";
-		let amount ;
-		try{
-			for(let item of data){
-				if(!data){
-					throw ('Greska pri dohvatanju podataka.');
-				}
-				display += `<li class="d-flex align-items-center justify-content-start">
-							<label for="${item.name.split(" ").join("")}" class="customChb w-100"> ${item.name}
-								<input type="checkbox" id="${item.name.split(" ").join("")}" value="${item.id}" name=`
-				if(div == "mode"){
-					display += "modes"
-					amount = games.filter(game => game.modes.includes(item.id));
-				}
-				else if(div == "categoryChb"){
-					display += "category"
-					amount = games.filter(game => game.catId.includes(item.id));
-				}
-				else{
-					display += "other"
-					amount = games.filter(game => game.otherId.includes(item.id));
-				}
-				display += `>
-								<span class="checkmark"></span>
-								<span class="amount">${amount.length}</span>
-							</label>					
-						</li>`
-			};
-			display += '</div>'
-			$("#" + div).html(display);
-		}
-		catch (e) {
-			console.error(e.message); // ako iz nekog razloga ne moze da dohvati vrednosti parametra games
-		}
-
-	};
-	function displayStoreFirst(data)
-	{
+	function displayStoreFirst(data) {
 		data = filterSearch(data);
 		data = filterPrice(data);
 		data = filterCat(data);
 		data = filterMode(data);
 		data = filterOther(data);
 		data = sortAll(data);
-		let allItems = [];// ovde stavljamo niz igrica za svaku stranicu
-		let pageNumber = 0;// od 0 brojimo stranice
-		let brojStranica = Math.ceil(data.length / maxItemsStore); // dobijamo broj stranica na osnovu maksimalnog broja igrica po stranici
-		for(let i = 0; i < brojStranica; i++){
-			allItems.push([]);// prvo ubacujemo --nested-- niz onoliko puta koliko je ukupan broj stranica u koga kasnije ubacujemo maksimalni broj igrica za jednu stranicu, onda dobijamo igrice po svakoj stranici
-			pageNumber++;// povecavamo broj stranica
-			for(let x = 0; x < data.length; x++){
-				if(x == (maxItemsStore * pageNumber)){ //  9 * 1 || 9 * 2 || 9 * 3 ----- ulazimo u if ako je index jednak maksimalnom broju igrica za odredjenu stranicu
-					break; // izlaz
+		let allItems = [];
+		let pageNumber = 0;
+		let brojStranica = Math.ceil(data.length / maxItemsStore);
+		for (let i = 0; i < brojStranica; i++) {
+			allItems.push([]);
+			pageNumber++;
+			for (let x = 0; x < data.length; x++) {
+				if (x == (maxItemsStore * pageNumber)) {
+					break;
 				}
-				else if(x >= pageNumber * maxItemsStore - maxItemsStore){ // ako je index igrice veci ili jednak od prethodnog broja igrica racunajuci prethodne stranice
-					allItems[i].push(data[x]) // ubacujemo igrice u nested array unutar allItems promenljive
+				else if (x >= pageNumber * maxItemsStore - maxItemsStore) {
+					allItems[i].push(data[x])
 				}
 			}
 		};
-		if(allItems.length){
+		if (allItems.length) {
 			displayPagination(allItems, brojStranica);
-			displayGames(allItems[0], "products", ""); // uvek prikazujemo prvu stranicu
+			displayGames(allItems[0], "products", "");
 		}
-		else{
-			$("#pag").empty() // brisemo paginaciju ako nema igrica za prikaz
+		else {
+			$("#pag").empty()
 		}
-		if(!data.length){
-			displayNoResults(); // ispisujemo poruku korisniku da nema rezultata po njegovih kriterijuma
+		if (!data.length) {
+			displayNoResults();
 		}
 	};
-	//endregion
-	//region Coming Soon section
-	function displayComingSoon(data)
-	{
+	function displayComingSoon(data) {
 		let content = "<div class='owl-carousel' id='coming-owl'>";
-		for(let game of data){
+		for (let game of data) {
 			let date = getDateString(game.releaseDate);
 			content += `<div class="soon_item_col">
 							<div class="soon_item">
@@ -712,7 +592,7 @@ $(document).ready(() =>
 		}
 		content += "</div>"
 		$(".coming-soon").html(content);
-		for(let game of data){
+		for (let game of data) {
 			$("#bg" + game.id).css("background-image", "url(" + game.image.background.src + ")");
 		}
 		let coming = $("#coming-owl");
@@ -727,10 +607,10 @@ $(document).ready(() =>
 				stagePadding: 50,
 				margin: 20,
 				autoplayHoverPause: true,
-				responsive : {
-					0 : { items : 1},
-					768 : { items : 2},
-					992: { items : 3}
+				responsive: {
+					0: { items: 1 },
+					768: { items: 2 },
+					992: { items: 3 }
 				}
 			}
 		))
@@ -738,54 +618,53 @@ $(document).ready(() =>
 	//endregion
 
 	//region Responsive filter section - store
-	function filterResponsive()
-	{
-		if(window.innerWidth < 992){
-			if(!$('#close').length){
+	function filterResponsive() {
+		if (window.innerWidth < 992) {
+			if (!$('#close').length) {
 				let close = `<div id="close" class="d-flex justify-content-center align-items-center p-3"><button type="button" id="closeFilter">Close filters</button> </div>`;
 				$("#filter").prepend($(close));
 			}
 			$("#filter-small").html($("#filterBg"));
 			$("#filter-wrapper").hide();
-			$("#filter-wrapper").css({"background-color" : "#1d1d1d", 'box-shadow': "50px 0px 50px 1000px rgba(0,0,0,0.6)"});
-			$("#filterBg").on("click", function(){
+			$("#filter-wrapper").css({ "background-color": "#1d1d1d", 'box-shadow': "50px 0px 50px 1000px rgba(0,0,0,0.6)" });
+			$("#filterBg").on("click", function () {
 				$("#filter-wrapper").fadeIn();
 			});
-			$("#closeFilter").on("click", function(){
+			$("#closeFilter").on("click", function () {
 				$("#filter-wrapper").fadeOut();
 			});
-			$("#filter-wrapper").css({position : "fixed",top : "0", left: "0" , bottom : "0", "z-index" : "999", "overflow-y": "scroll"});
-			$("#filterBg").on("mouseover", function(){
+			$("#filter-wrapper").css({ position: "fixed", top: "0", left: "0", bottom: "0", "z-index": "999", "overflow-y": "scroll" });
+			$("#filterBg").on("mouseover", function () {
 				$(this).css("cursor", "pointer");
 			})
 		}
-		else{
+		else {
 			$('#close').remove();
 			$("#filterBg").css("width", "100%");
 			$("#filter").prepend($("#filterBg"))
 			$("#filter-wrapper").show();
-			$("#filter-wrapper").css({"background-color" : "transparent", 'box-shadow': "none"})
-			$("#filter-wrapper").css({position : "relative", "z-index" : 1, "overflow-y" : "hidden"})
+			$("#filter-wrapper").css({ "background-color": "transparent", 'box-shadow': "none" })
+			$("#filter-wrapper").css({ position: "relative", "z-index": 1, "overflow-y": "hidden" })
 		}
 	};
 	//endregion
 
 	//region Contact form - check
-	function checkInputValues(input, errDiv ,regEx, ifIsEmptyErrorMsg, ifDidntPassRegExMsg){
+	function checkInputValues(input, errDiv, regEx, ifIsEmptyErrorMsg, ifDidntPassRegExMsg) {
 		let val = false;
 		let err;
-		if(!input.value.length){
+		if (!input.value.length) {
 			err = ifIsEmptyErrorMsg;
 			$(input).css('border', '2px solid #e21e21');
 			$('.' + errDiv).html(err);
 		}
-		else{
-			if(!regEx.test(input.value)){
+		else {
+			if (!regEx.test(input.value)) {
 				err = ifDidntPassRegExMsg;
 				$(input).css('border', '2px solid #e21e21');
 				$('.' + errDiv).html(err);
 			}
-			else{
+			else {
 				$(input).css('border', '2px solid green');
 				$('.' + errDiv).html('');
 				val = true;
@@ -796,13 +675,13 @@ $(document).ready(() =>
 	//endregion
 
 	//region Display modal
-	function displayMessageModal(text){
+	function displayMessageModal(text) {
 		var modal;
-		if(!$('#modal').length){
+		if (!$('#modal').length) {
 			modal = document.createElement('div'); // kreiram div u koji cu da smestam poruke
 			modal.setAttribute('id', 'modal');
 		}
-		else{
+		else {
 			modal = document.getElementById('modal'); // ako postoji, onda ga dohvati
 		}
 		let message = document.createElement('div');
@@ -811,14 +690,14 @@ $(document).ready(() =>
 
 		modal.appendChild(message);
 		let footer = document.getElementsByTagName('footer');
-		if($("#modal").length){
+		if ($("#modal").length) {
 			modal.appendChild(message); // da ne dolazi do preklapanja poruka, vec da se ispisuju jedna ispod druge
-		}else{
+		} else {
 			$(modal).insertAfter(footer); // da ga postavim na kraju stranice
 		}
 		$(message).fadeIn();
 		let promise = new Promise((resolve, reject) => {  //promise da bih obrisao element nakon izvrsvanja fade out-a, simuliram asinhroni zahtev pomocu timeout
-			setTimeout(() => {$(message).fadeOut(); resolve()}, 3000);
+			setTimeout(() => { $(message).fadeOut(); resolve() }, 3000);
 		})
 		promise.then(() => { // cekamo izvrsavanje promise-a
 			setTimeout(() => {// nakon sto je gotov promise, izvrsava se i brise element nakon jedne sekunde
@@ -828,33 +707,33 @@ $(document).ready(() =>
 	}
 	//endregion
 
-	function checkCartAmount(){
-		if(localStorage.getItem('addedGame')){
+	function checkCartAmount() {
+		if (localStorage.getItem('addedGame')) {
 			let addedGames = JSON.parse(localStorage.getItem('addedGame'));
 			$('#total-price').html(localStorage.getItem('total'));
 			$('#checkout_items').html(addedGames.length); // ispisujemo broj igrica unetih u korpu, distinct, ne povecavamo broj ako igrica vec postoji u korpi, vec u drugoj funkciji povecavamo quantity
 		}
-		else{
+		else {
 			$('#checkout_items').html('0');
 		}
 	}
-	function getTotal(){
+	function getTotal() {
 		var total = 0;
-		if(localStorage.getItem('addedGame')){
+		if (localStorage.getItem('addedGame')) {
 			let allGames = JSON.parse(localStorage.getItem('addedGame'));
-			for(let game of allGames){
+			for (let game of allGames) {
 				total += game.quantity * game.price; // ukupna cena
 			}
 		}
 		total = total.toFixed(2); // dve decimale
 		$('#total-price').html(`<p>Your total:</p> <p class="price-final"><i class="fas fa-euro-sign"></i> ${total}</p>`);
 	}
-	function displayNav(data){
+	function displayNav(data) {
 		let mainNav = '';
 		let otherNav = '';
-		for(let link of data){
+		for (let link of data) {
 			otherNav += `<li><a href="/${link.link}">${link.name}</a></li>`
-			if(link.id >= 4){
+			if (link.id >= 4) {
 				continue;
 			}
 			mainNav += `<li><a href="/${link.link}">${link.name}</a></li>`;
@@ -864,37 +743,37 @@ $(document).ready(() =>
 		$(".menu_top_nav").html(otherNav);
 		$(".menu_top_nav").find("li").addClass('menu_item');
 	}
-	function changeNumber(value){
+	function changeNumber(value) {
 		maxItemsStore = value;
 	}
-	function getDateString(game){
+	function getDateString(game) {
 		let month, day, year, date;
 		date = game;
 		let dateSplit = date.split("-");
 		day = dateSplit[2];
 		year = dateSplit[0];
-		switch(dateSplit[1]){
-			case "01" : month = "Jan";break;
-			case "02" : month = "Feb";break;
-			case "03" : month = "Mar";break;
-			case "04" : month = "Apr";break;
-			case "05" : month = "May";break;
-			case "06" : month = "Jun";break;
-			case "07" : month = "Jul";break;
-			case "08" : month = "Aug";break;
-			case "09" : month = "Sep";break;
-			case "10" : month = "Oct";break;
-			case "11" : month = "Nov";break;
-			case "12" : month = "Dec";break;
+		switch (dateSplit[1]) {
+			case "01": month = "Jan"; break;
+			case "02": month = "Feb"; break;
+			case "03": month = "Mar"; break;
+			case "04": month = "Apr"; break;
+			case "05": month = "May"; break;
+			case "06": month = "Jun"; break;
+			case "07": month = "Jul"; break;
+			case "08": month = "Aug"; break;
+			case "09": month = "Sep"; break;
+			case "10": month = "Oct"; break;
+			case "11": month = "Nov"; break;
+			case "12": month = "Dec"; break;
 		}
 		return {
-			month : month,
-			day : day,
-			year : year
+			month: month,
+			day: day,
+			year: year
 		}
 	}
-	
-	
+
+
 	$(document).on('click', '#price', sendToCart);
 	$(document).on('click', '.favorite', sendToCart);
 	// function sendToCart(){
@@ -927,16 +806,16 @@ $(document).ready(() =>
 	//endregion
 
 	//region Filtering functions - Price - Categories - Mode - Other
-	$("#search").on('keyup', function(){
+	$("#search").on('keyup', function () {
 		filtered = filterSearch(allGames)
-		displayStoreFirst(filtered)
+		// displayStoreFirst(filtered)
 	})
-	function filterSearch(data){
+	function filterSearch(data) {
 		let search = document.getElementById('search');
 		let text = search.value.trim().toLowerCase();
-		if(search.value.length){
+		if (search.value.length) {
 			data = data.filter((game) => {
-				if(game.name.toLowerCase().indexOf(text) != -1){
+				if (game.name.toLowerCase().indexOf(text) != -1) {
 					return game;
 				}
 			})
@@ -946,21 +825,19 @@ $(document).ready(() =>
 	$("#priceFrom").on("input", getRangeValue("#from", "#priceFrom"));
 	$("#priceTo").on("input", getRangeValue("#to", "#priceTo"));
 
-	function filterPrice(data)
-	{
+	function filterPrice(data) {
 		return data.filter(game => Math.floor(game.price.value.netPrice) < priceTo && Math.ceil(game.price.value.netPrice) > priceFrom);
 	};
-	function getRangeValue(output, value)
-	{
-		$('#priceTo').on('mouseup', function (){
+	function getRangeValue(output, value) {
+		$('#priceTo').on('mouseup', function () {
 			filtered = filterPrice(allGames);
-			displayStoreFirst(filtered);
+			// displayStoreFirst(filtered);
 		})
-		$('#priceFrom').on('mouseup', function (){
+		$('#priceFrom').on('mouseup', function () {
 			filtered = filterPrice(allGames);
-			displayStoreFirst(filtered);
+			// displayStoreFirst(filtered);
 		})
-		return  () => {
+		return () => {
 			$(output).val($(value).val());
 			if (output == "#from") {
 				priceFrom = $(value).val();
@@ -969,62 +846,58 @@ $(document).ready(() =>
 			}
 		}
 	};
-	function removeUnchecked(array, value)
-	{
+	function removeUnchecked(array, value) {
 		var index = array.indexOf(value);	// dohvatanje indeksa elementa koji je unchecked u nizu
-		if(index != -1){	// ako se nalazi u nizu
+		if (index != -1) {	// ako se nalazi u nizu
 			array.splice(index, 1) // uklanjanje tog elementa
 		}
 	};
 
-	function filterCat(data)
-	{
-		if(checkedCat.length){
+	function filterCat(data) {
+		if (checkedCat.length) {
 			filtered = data.filter(game => checkedCat.some(checked => game.catId.includes(checked)));
 		}
-		else{
+		else {
 			filtered = data;
 		}
 		return filtered;
 	};
-	function filterMode(data)
-	{
-		if(checkedMode.length){
+	function filterMode(data) {
+		if (checkedMode.length) {
 			filtered = data.filter(game => checkedMode.some(checked => game.modes.includes(checked)));
 		}
-		else{
+		else {
 			filtered = data;
 		}
 		return filtered;
 	};
-	function filterOther(data)
-	{
-		if(checkedOther.length){
+	function filterOther(data) {
+		if (checkedOther.length) {
 			filtered = data.filter(game => checkedOther.some(checked => game.otherId.includes(checked)));
 		}
-		else{
+		else {
 			filtered = data;
 		}
 		return filtered;
 	};
-	$(document).on('change', ':checkbox', function(){
+	$(document).on('change', ':checkbox', function () {
 		let name = this.getAttribute('name');
-		if(name.indexOf('category') != -1){
+		if (name.indexOf('category') != -1) {
 			checkboxFilter(this, checkedCat, filterCat);
 		}
-		else if(name.indexOf('modes') != -1){
+		else if (name.indexOf('modes') != -1) {
 			checkboxFilter(this, checkedMode, filterMode);
 		}
-		else{
+		else {
 			checkboxFilter(this, checkedOther, filterOther);
 		}
 	})
-	function checkboxFilter(checkbox, array, filterArray){
+	function checkboxFilter(checkbox, array, filterArray) {
 		let value = parseInt($(checkbox).val());
-		if($(checkbox).is(":checked")){
+		if ($(checkbox).is(":checked")) {
 			array.push(value);
 		}
-		else{
+		else {
 			removeUnchecked(array, value);
 		}
 		filtered = filterArray(allGames);
@@ -1033,9 +906,8 @@ $(document).ready(() =>
 	//endregion
 
 	//region Open single page
-	$(document).on("click", ".openSingle",function()
-	{
-		localStorage.setItem("id",($(this).attr("data-id")));
+	$(document).on("click", ".openSingle", function () {
+		localStorage.setItem("id", ($(this).attr("data-id")));
 		open("single.html", "_self");
 	});
 	//endregion
@@ -1046,23 +918,22 @@ $(document).ready(() =>
 	$(document).on("click", "#more-filters", rotateHandler("#mode", "#more-filters"));
 	$(document).on("click", "#filter-other", rotateHandler("#otherFilter", "#filter-other"));
 
-	function rotateHandler(button, div)
-	{
+	function rotateHandler(button, div) {
 		return () => {
 			$(button).slideToggle();
-			if(div == "#filterCat"){
+			if (div == "#filterCat") {
 				degreesCat += 180;
 				$(div).find(".fas").css("transform", "rotate(" + degreesCat + "deg)");
 			}
-			else if(div == "#priceToggle"){
+			else if (div == "#priceToggle") {
 				degreesPrice += 180;
 				$(div).find(".fas").css("transform", "rotate(" + degreesPrice + "deg)");
 			}
-			else if(div == "#more-filters"){
+			else if (div == "#more-filters") {
 				degreesMore += 180;
 				$(div).find(".fas").css("transform", "rotate(" + degreesMore + "deg)");
 			}
-			else{
+			else {
 				degreesOther += 180;
 				$(div).find(".fas").css("transform", "rotate(" + degreesOther + "deg)");
 			}
@@ -1072,103 +943,96 @@ $(document).ready(() =>
 	//endregion
 
 	//region Sorting - Store
-	$(document).on("change", "#sort", function()
-	{
+	$(document).on("change", "#sort", function () {
 		filtered = sortAll(allGames);
 		displayStoreFirst(filtered)
 	});
-	function sortByNameAZ(data)
-	{
-		return data.sort((a,b) =>{
+	function sortByNameAZ(data) {
+		return data.sort((a, b) => {
 			var nameA = a.name.toLowerCase();
 			var nameB = b.name.toLowerCase();
-			if(nameA < nameB){
+			if (nameA < nameB) {
 				return -1;
 			}
-			else if(nameA > nameB){
+			else if (nameA > nameB) {
 				return 1;
 			}
 			return 0;
 		})
 	};
-	function sortByNameZA(data)
-	{
-		return data.sort((a,b) => {
+	function sortByNameZA(data) {
+		return data.sort((a, b) => {
 			var nameA = a.name.toLowerCase();
 			var nameB = b.name.toLowerCase();
-			if(nameA < nameB){
+			if (nameA < nameB) {
 				return 1;
 			}
-			else if(nameA > nameB){
+			else if (nameA > nameB) {
 				return -1;
 			}
 			return 0;
 		})
 	}
-	function sortByPriceHighLow(data)
-	{
-		return data.sort((a,b) =>{
+	function sortByPriceHighLow(data) {
+		return data.sort((a, b) => {
 			var priceA;
 			var priceB;
 			priceA = Math.round(a.price.value.netPrice);
 			priceB = Math.round(b.price.value.netPrice);
 
-			if(priceA < priceB){
+			if (priceA < priceB) {
 				return 1;
 			}
-			else if(priceA > priceB){
+			else if (priceA > priceB) {
 				return -1;
 			}
 			return 0;
 		})
 	}
-	function sortByPriceLowHigh(data)
-	{
-		return data.sort((a,b) =>{
+	function sortByPriceLowHigh(data) {
+		return data.sort((a, b) => {
 			var priceA;
 			var priceB;
 			priceA = Math.round(a.price.value.netPrice);
 			priceB = Math.round(b.price.value.netPrice);
 
-			if(priceA < priceB){
+			if (priceA < priceB) {
 				return -1;
 			}
-			else if(priceA > priceB){
+			else if (priceA > priceB) {
 				return 1;
 			}
 			return 0;
 		})
 	}
-	function sortAll(data)
-	{
+	function sortAll(data) {
 		let value = $("#sort").val();
-		if(value == 'nameASC'){
+		if (value == 'nameASC') {
 			return sortByNameAZ(data);
 		}
-		else if(value == 'nameDESC'){
+		else if (value == 'nameDESC') {
 			return sortByNameZA(data);
 		}
-		else if(value == 'priceDESC'){
+		else if (value == 'priceDESC') {
 			return sortByPriceHighLow(data);
 		}
-		else if(value == 'priceASC'){
+		else if (value == 'priceASC') {
 			return sortByPriceLowHigh(data);
 		}
-		else{
+		else {
 			return data;
 		}
 	}
 	//endregion
 
 	//region Pagination - Store
-	function displayPagination(allPages, numberOfPages)
-	{
-		if(allPages.length){
+	function displayPagination(allPages, numberOfPages) {
+		if (allPages.length) {
 			let display = `<ul class="d-flex flex-row" id="pagination">`;
-			for(let i = 0; i < numberOfPages; i++){
+			for (let i = 0; i < numberOfPages; i++) {
 				display += `<li class="pagination-item mr-2`;
-				if(i == 0){
-					display+=" active-pag";
+				if (i == 0) {
+					display += " active-pag";
 				}
 				display += `" id="pag-${i + 1}">${i + 1}</li>`
 			}
@@ -1176,10 +1040,10 @@ $(document).ready(() =>
 			$("#pag").html(display);
 		}
 
-		$(".pagination-item").on("click", function(){
+		$(".pagination-item").on("click", function () {
 			let pag = document.getElementsByClassName('pagination-item');
-			for(let i = 0; i < pag.length; i++){
-				if(this.id == pag[i].id){
+			for (let i = 0; i < pag.length; i++) {
+				if (this.id == pag[i].id) {
 					displayGames(allPages[i], 'products');
 					$(".pagination-item").removeClass("active-pag")
 					$(this).addClass("active-pag")
@@ -1191,8 +1055,7 @@ $(document).ready(() =>
 	//endregion
 
 	//region Display no results - Store
-	function displayNoResults()
-	{
+	function displayNoResults() {
 		$("#products").removeClass("row-cols-1 row-cols-sm-2 row-cols-md-3");
 		$("#products").addClass("d-flex align-items-center justify-content-center h-100");
 		var msg = `<div id="noMatch" class="pb-5 pb-md-0">
@@ -1206,7 +1069,7 @@ $(document).ready(() =>
 
 	//region Global RegEx
 
-	const mailReg =  /^[a-z][a-z.\d-_]+@[a-z]+(\.[a-z]+)+$/;// potreban za newsletter na svakoj strani i contact stranicu
+	const mailReg = /^[a-z][a-z.\d-_]+@[a-z]+(\.[a-z]+)+$/;// potreban za newsletter na svakoj strani i contact stranicu
 	const fullNameReg = /^[A-ZŠĐČĆŽ][a-zšđčćž]{2,14}(\s[A-ZČĆŽŠĐ][a-zšđčćž]{2,19})+$/; // za kontakt formu i order formu
 
 	//endregion
@@ -1215,27 +1078,27 @@ $(document).ready(() =>
 	const newsletterForm = document.getElementById('newsletter_form');
 	const newsletter = document.getElementById('newsletter_email');
 	var correctNewsletter = false;
-	newsletter.onchange = ()=>{
+	newsletter.onchange = () => {
 		checkInputValues(newsletter, 'newsletterErr', mailReg, 'Newsletter email cannot be empty', 'Mail is not in a good format. (E.q: johndoe5@gmail.com)');
 	};
-	newsletterForm.onsubmit =  (e)=>{
+	newsletterForm.onsubmit = (e) => {
 		e.preventDefault();
 		correctNewsletter = checkInputValues(newsletter, 'newsletterErr', mailReg, 'Newsletter email cannot be empty', 'Mail is not in a good format. (E.q: johndoe5@gmail.com)');
-		if(correctNewsletter){
+		if (correctNewsletter) {
 			setNewsletterCookie('newsletter', newsletter.value, 6);
 		}
 	};
-	function checkCookieNewsletter(){
+	function checkCookieNewsletter() {
 		let cookie = document.cookie.split("; "); //dohvatamo kolacice vezane za newsletter mejlove
 		let values = [];
-		for(let newsletter of cookie){
-			if(newsletter.includes('newsletter')){
+		for (let newsletter of cookie) {
+			if (newsletter.includes('newsletter')) {
 				values.push(newsletter.split('=')[1]);
 			}
 		}
-		if(cookie){ //ako postoje
-			for(let x of values){
-				if(!news.includes(x)){
+		if (cookie) { //ako postoje
+			for (let x of values) {
+				if (!news.includes(x)) {
 					news.push(x); // ubacujemo vrednosti kolacica koje vec ne postoje u nizu
 				}
 			}
@@ -1246,31 +1109,31 @@ $(document).ready(() =>
 	//endregion
 
 	//region Set newsletter cookie function
-	function setNewsletterCookie(name, value, duration){
+	function setNewsletterCookie(name, value, duration) {
 		checkCookieNewsletter();
 		let date = new Date();
 		date.setMonth(date.getMonth() + duration);
 		let cookie = document.cookie.split("; ").find(val => val.startsWith(name + '='));
-		if(cookie) {
-			if(news.length){
-				if(news.includes(value)){
+		if (cookie) {
+			if (news.length) {
+				if (news.includes(value)) {
 					displayMessageModal('Oops. Looks like you are already subscribed to our newsletter.');
 				}
-				else{
-					if(value.length){
-						if(!news.includes(value)){
+				else {
+					if (value.length) {
+						if (!news.includes(value)) {
 							news.push(value);
 						}
 					}
 					displayMessageModal('You have successfully subscribed to our newsletter.');
-					for(let i = news.length - 1; i < news.length; i++){
+					for (let i = news.length - 1; i < news.length; i++) {
 						document.cookie = `${name}${i}=${news[i]}; expires=${date.toUTCString()}; secure`;
 					}
 
 				}
 			}
 		}
-		else{
+		else {
 			document.cookie = `${name}=${value}; expires=${date.toUTCString()}; secure`;
 			displayMessageModal('You have successfully subscribed to our newsletter.');
 		}
@@ -1283,10 +1146,10 @@ $(document).ready(() =>
 		localStorage.setItem('cookies', 'accepted');
 		$('#cookie-wrapper').fadeOut();
 	}
-	if(localStorage.getItem('cookies')){
+	if (localStorage.getItem('cookies')) {
 		$('#cookie-wrapper').remove();
 	}
-	else{
+	else {
 		$('#cookie-wrapper').css('display', 'block');
 	}
 	//endregion

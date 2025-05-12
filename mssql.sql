@@ -11,7 +11,6 @@ CREATE TABLE games (
     game_id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(200) NOT NULL,
     description NVARCHAR(MAX),
-    genre NVARCHAR(100),
     platform NVARCHAR(100),
     developer NVARCHAR(100),
     publisher NVARCHAR(100),
@@ -21,6 +20,14 @@ CREATE TABLE games (
     is_active BIT NOT NULL DEFAULT 1,
     discount_code_id INT NULL,
     FOREIGN KEY (discount_code_id) REFERENCES discount_codes(discount_code_id)
+);
+
+CREATE TABLE genres (
+    ganre_id INT IDENTITY(1,1) PRIMARY KEY,
+    game_id INT NOT NULL,
+    genre NVARCHAR(50) NOT NULL,
+    FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE,
+    CONSTRAINT uq_game_genre UNIQUE (game_id, genre)
 );
 
 CREATE TABLE inventory (

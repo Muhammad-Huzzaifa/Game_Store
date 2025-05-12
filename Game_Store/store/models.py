@@ -28,7 +28,6 @@ class Games(models.Model):
     game_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
-    genre = models.CharField(max_length=100, blank=True, null=True)
     platform = models.CharField(max_length=100, blank=True, null=True)
     developer = models.CharField(max_length=100, blank=True, null=True)
     publisher = models.CharField(max_length=100, blank=True, null=True)
@@ -43,6 +42,19 @@ class Games(models.Model):
     
     class Meta:
         db_table = 'games'
+
+
+class Genres(models.Model):
+    ganre_id = models.AutoField(primary_key=True)
+    game = models.ForeignKey('Games', on_delete=models.CASCADE, db_column='game_id')
+    genre = models.CharField(max_length=50)
+
+    def __str__(self):
+        return str(self.ganre_id)
+
+    class Meta:
+        db_table = 'genres'
+        unique_together = ('game', 'genre')
 
 
 class Inventory(models.Model):

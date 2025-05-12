@@ -36,12 +36,11 @@ def check_admin_access(request):
     elif not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, 'You do not have permission to access the admin interface.')
         return redirect('store:index')
-    return redirect('/admin/')
+    return None
 
 
 def index(request):
     """Renders the index.html page with new releases, hot sales, and top sellers."""
-    # Check if user is admin
     admin_redirect = admin_check(request)
     if admin_redirect:
         return admin_redirect
@@ -216,14 +215,40 @@ def delete_account(request):
 
 
 def shop(request):
-    """Renders the shop.html page with all active games."""
+    """Renders the shop.html page with filtered and sorted active games."""
     admin_redirect = admin_check(request)
     if admin_redirect:
         return admin_redirect
         
     try:
         games = models.Games.objects.filter(is_active=True)
-        
+
+        min_price = request.GET.get('min_price')
+        max_price = request.GET.get('max_price')
+        if min_price is not None and max_price is not None:
+            games = games.filter(price__gte=min_price, price__lte=max_price)
+            
+        categories_param = request.GET.get('categories[]', '')
+        if categories_param:
+            categories = categories_param.split(',')
+            if categories:
+                games = games.filter(genres__genre__in=categories).distinct()    
+
+        search_query = request.GET.get('search', '').strip()
+        if search_query:
+            games = games.filter(title__icontains=search_query)
+
+        sort_by = request.GET.get('sort')
+        if sort_by and sort_by != '0':  # Only apply sorting if a valid sort option is selected
+            if sort_by == 'nameASC':
+                games = games.order_by('title')
+            elif sort_by == 'nameDESC':
+                games = games.order_by('-title')
+            elif sort_by == 'priceASC':
+                games = games.order_by('price')
+            elif sort_by == 'priceDESC':
+                games = games.order_by('-price')
+
         for game in games:
             if game.discount_code:
                 discount_amount = (game.price * game.discount_code.discount_percentage) / 100
@@ -231,9 +256,22 @@ def shop(request):
             else:
                 game.discounted_price = None
 
+        items_per_page = int(request.GET.get('numberOfProducts', 6))
+        page = int(request.GET.get('page', 1))
+        start_idx = (page - 1) * items_per_page
+        end_idx = start_idx + items_per_page
+        
+        total_games = games.count()
+        total_pages = (total_games + items_per_page - 1) // items_per_page
+
+        categories = models.Genres.objects.values_list('genre', flat=True).distinct()
+
         context = {
             'user': request.user,
-            'games': games,
+            'games': games[start_idx:end_idx],
+            'total_pages': total_pages,
+            'current_page': page,
+            'categories': categories,
         }
         return render(request, 'store/shop.html', context)
     except Exception as e:
@@ -250,6 +288,7 @@ def single(request, game_id):
         
     try:
         game = models.Games.objects.get(pk=game_id, is_active=True)
+        genres = models.Genres.objects.filter(game=game).values_list('genre', flat=True)
 
         if game.discount_code:
             discount_amount = (game.price * game.discount_code.discount_percentage) / 100
@@ -262,6 +301,7 @@ def single(request, game_id):
         context = {
             'user': request.user,
             'game': game,
+            'genres': genres,
         }
         return render(request, 'store/single.html', context)
     except models.Games.DoesNotExist:
