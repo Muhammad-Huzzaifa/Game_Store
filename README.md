@@ -1,6 +1,6 @@
 ## Online Game E-commerce Platform (Django + SQL Server)
 
-![image](https://github.com/user-attachments/assets/579f4dec-f161-4ba3-a6db-03f318bda80d)
+![image](https://github.com/user-attachments/assets/b79dbc0c-a7e6-498c-a2fb-38665fe0f5bd)
 
 ## Overview
 
@@ -48,7 +48,9 @@ The application connects to an Azure SQL Database. You need to install the ODBC 
 1. Download and install the ODBC Driver for SQL Server from:
    https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server
 
-2. Create a `.env` file in the project's root directory with the following variables:
+2. Run `mssql.sql` script in your azure database or local sql server (form where you are connecting to application)
+
+4. Create a `.env` file in the project's root directory with the following variables:
    ```
    DB_ENGINE=mssql
    DB_NAME=your-database-name
@@ -60,7 +62,7 @@ The application connects to an Azure SQL Database. You need to install the ODBC 
    DB_EXTRA_PARAMS=Encrypt=yes;TrustServerCertificate=yes; # You can use TrustServerCertificate=yes in development and TrustServerCertificate=no in in production.
    ```
 
-3. Make sure your IP address is allowed in the Azure SQL Server firewall settings.
+5. Make sure your IP address is allowed in the Azure SQL Server firewall settings.
 
 ### 3. Run Migrations
 
