@@ -1,4 +1,4 @@
-// Function to safely handle messages
+    // Function to safely handle messages
 function showMessage(message, type = 'error', duration = 5000) {
     try {
         // Get or create message popup

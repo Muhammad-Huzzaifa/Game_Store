@@ -37,6 +37,7 @@ $(document).ready(() => {
 		getData('allGames', displayAllSections);
 		getData('comingSoon', displayComingSoon);
 		removePng();
+		getTotal()
 	}
 	else if (location.indexOf("single") !== -1) {
 		getData('allGames', displaySingle);
@@ -710,24 +711,12 @@ $(document).ready(() => {
 	function checkCartAmount() {
 		if (localStorage.getItem('addedGame')) {
 			let addedGames = JSON.parse(localStorage.getItem('addedGame'));
-			$('#total-price').html(localStorage.getItem('total'));
-			$('#checkout_items').html(addedGames.length); // ispisujemo broj igrica unetih u korpu, distinct, ne povecavamo broj ako igrica vec postoji u korpi, vec u drugoj funkciji povecavamo quantity
+			// $('#total-price').html(localStorage.getItem('total'));
+			// $('#checkout_items').html(addedGames.length); // ispisujemo broj igrica unetih u korpu, distinct, ne povecavamo broj ako igrica vec postoji u korpi, vec u drugoj funkciji povecavamo quantity
 		}
-		else {
-			$('#checkout_items').html('0');
-		}
+
 	}
-	function getTotal() {
-		var total = 0;
-		if (localStorage.getItem('addedGame')) {
-			let allGames = JSON.parse(localStorage.getItem('addedGame'));
-			for (let game of allGames) {
-				total += game.quantity * game.price; // ukupna cena
-			}
-		}
-		total = total.toFixed(2); // dve decimale
-		$('#total-price').html(`<p>Your total:</p> <p class="price-final"><i class="fas fa-euro-sign"></i> ${total}</p>`);
-	}
+	
 	function displayNav(data) {
 		let mainNav = '';
 		let otherNav = '';

@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
+
+    fetch('/cart-count/', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const counter = document.getElementById('checkout_items');
+        if (counter && data.cart_count !== undefined) {
+            counter.textContent = data.cart_count;
+        }
+    });
+    
     // Add to cart functionality
     const buttons = document.querySelectorAll('.add-to-cart');
 
@@ -14,9 +28,16 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Game added to cart!');
-                } else {
-                    alert('Error adding game to cart.');
+                    const counter = document.getElementById('checkout_items');
+                if (counter && data.cart_count !== undefined) {
+                    counter.textContent = data.cart_count;
+
+                }
+                const totalElement = document.getElementById('cart-total');
+                
+                if (totalElement && data.total_price !== undefined) {
+                    totalElement.textContent = data.total_price;
+                }
                 }
             })
             .catch(error => {
@@ -24,87 +45,114 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
-
-    // Update cart quantity
-    const csrfToken = document.getElementById("csrf-token")?.value;
+ // Update cart quantity
+ const csrfToken = document.getElementById("csrf-token")?.value;
     
-    document.querySelectorAll('.quantityBtn').forEach(button => {
-        button.addEventListener('click', function () {
-            const gameId = this.getAttribute('data-id');
-            const action = this.getAttribute('data-quantity');
-            
-            console.log('Updating quantity:', gameId, action); // Debug
+ document.querySelectorAll('.quantityBtn').forEach(button => {
+     button.addEventListener('click', function () {
+         const gameId = this.getAttribute('data-id');
+         const action = this.getAttribute('data-quantity');
+         
+         console.log('Updating quantity:', gameId, action); // Debug
 
-            fetch("/update-cart-quantity/", {  // Use absolute URL path instead of template tag
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    'game_id': gameId,
-                    'action': action
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Response:', data); // Debug
-                if (data.success) {
-                    // Update quantity on page without reloading
-                    const quantityElement = this.closest('.d-flex').querySelector('h5');
-                    if (quantityElement) {
-                        quantityElement.textContent = data.quantity;
-                    } else {
-                        location.reload();
-                    }
-                } else {
-                    alert(data.error || 'Failed to update cart.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the cart.');
-            });
-        });
-    });
+         fetch("/update-cart-quantity/", {  // Use absolute URL path instead of template tag
+             method: 'POST',
+             headers: {
+                 'X-CSRFToken': csrfToken,
+                 'Content-Type': 'application/x-www-form-urlencoded'
+             },
+             body: new URLSearchParams({
+                 'game_id': gameId,
+                 'action': action
+             })
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 // Update quantity on page without reloading
+                 const quantityElement = this.closest('.d-flex').querySelector('h5');
+                 if (quantityElement) {
+                     quantityElement.textContent = data.quantity;
+                 } else {
+                     location.reload();
+                 }
+             } 
+         })
+         .catch(error => {
+             console.error('Error:', error);
+             alert('An error occurred while updating the cart.');
+         });
+     });
+ });
 
-    document.querySelectorAll('.removeGame').forEach(button => {
-        button.addEventListener('click', function () {
-            const gameId = this.getAttribute('data-id');
-            
-            fetch("/remove-from-cart/", {  // Use absolute URL path instead of template tag
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    'game_id': gameId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove item from DOM or reload
-                    const listItem = this.closest('li');
-                    if (listItem) {
-                        listItem.remove();
-                        
-                        // If cart is now empty, show message
-                        if (document.querySelectorAll('#games-list li').length === 0) {
-                            document.getElementById('games-list').innerHTML = '<p>Your cart is empty.</p>';
-                        }
-                    } else {
-                        location.reload();
-                    }
-                } else {
-                    alert(data.error || 'Failed to remove item.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while removing the item.');
-            });
-        });
-    });
+ document.querySelectorAll('.removeGame').forEach(button => {
+     button.addEventListener('click', function () {
+         const gameId = this.getAttribute('data-id');
+         
+         fetch("/remove-from-cart/", {  // Use absolute URL path instead of template tag
+             method: 'POST',
+             headers: {
+                 'X-CSRFToken': csrfToken,
+                 'Content-Type': 'application/x-www-form-urlencoded'
+             },
+             body: new URLSearchParams({
+                 'game_id': gameId
+             })
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 // Remove item from DOM or reload
+                 const listItem = this.closest('li');
+                 if (listItem) {
+                     listItem.remove();
+                     
+                     // If cart is now empty, show message
+                     if (document.querySelectorAll('#games-list li').length === 0) {
+                         document.getElementById('games-list').innerHTML = '<p>Your cart is empty.</p>';
+                     }
+                 } else {
+                     location.reload();
+                 }
+             } else {
+                 alert(data.error || 'Failed to remove item.');
+             }
+         })
+         .catch(error => {
+             console.error('Error:', error);
+             alert('An error occurred while removing the item.');
+         });
+     });
+ });
 });
+
+
+// function displayMessageModal(text) {
+    var modal;
+    if (!$('#modal').length) {
+        modal = document.createElement('div'); // kreiram div u koji cu da smestam poruke
+        modal.setAttribute('id', 'modal');
+    }
+    else {
+        modal = document.getElementById('modal'); // ako postoji, onda ga dohvati
+    }
+    let message = document.createElement('div');
+    message.setAttribute('id', 'message-modal');
+    message.innerHTML = text;
+
+    modal.appendChild(message);
+    let footer = document.getElementsByTagName('footer');
+    if ($("#modal").length) {
+        modal.appendChild(message); // da ne dolazi do preklapanja poruka, vec da se ispisuju jedna ispod druge
+    } else {
+        $(modal).insertAfter(footer); // da ga postavim na kraju stranice
+    }
+    $(message).fadeIn();
+    let promise = new Promise((resolve, reject) => {  //promise da bih obrisao element nakon izvrsvanja fade out-a, simuliram asinhroni zahtev pomocu timeout
+        setTimeout(() => { $(message).fadeOut(); resolve() }, 3000);
+    })
+    promise.then(() => { // cekamo izvrsavanje promise-a
+        setTimeout(() => {// nakon sto je gotov promise, izvrsava se i brise element nakon jedne sekunde
+            $(message).remove();
+        }, 1000)
+    })

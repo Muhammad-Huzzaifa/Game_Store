@@ -77,10 +77,10 @@
 					<div class="card mb-3 col">
 						{% if user.is_authenticated %}
 						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
-							class="favorite d-flex justify-content-center align-items-center">
-							<i class="fas fa-cart-plus"></i>
+						class="favorite d-flex justify-content-center align-items-center add-to-cart">
+						<i class="fas fa-cart-plus"></i>
 						</div>
-						{% endif %}
+					{% endif %}
 						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
 							data-id="{{ game.game_id }}" style="position: relative;">
 							{% if game.discount_code %}
@@ -199,6 +199,8 @@
 {% endblock %}
 
 {% block extra_js %}
+
+<script src="{% static 'js/cart.js' %}"></script>
 <script>
 	function confirmDelete() {
 		$('#deleteConfirmModal').modal({

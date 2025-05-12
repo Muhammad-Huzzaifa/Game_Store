@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Sum, F, FloatField
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib import messages
@@ -349,12 +350,42 @@ def add_to_cart(request, game_id):
                 cart_item.quantity += 1
                 cart_item.save()
 
-            return JsonResponse({'success': True, 'message': 'Game added to cart'})
+            cart_count = models.CartItems.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
+
+             # Compute total price
+            total_price = models.CartItems.objects.filter(cart=cart).aggregate(
+                total=Sum(F('quantity') * F('game__price'), output_field=FloatField())
+            )['total'] or 0.0
+
+
+            messages.success(request,"Game Added to cart")
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Game added to cart',
+                'cart_count': cart_count,
+                'total_price': f"{total_price:.2f}"
+            })
 
         except models.Games.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Game not found'})
     
+    
     return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+@user_required
+def cart_count(request):
+    cart = models.Carts.objects.filter(user=request.user).first()
+    if not cart:
+        return JsonResponse({'cart_count': 0})
+    
+    count = models.CartItems.objects.filter(cart=cart).aggregate(
+        total=Sum('quantity')
+    )['total'] or 0
+
+    return JsonResponse({'cart_count': count})
+
 
 @require_POST
 @user_required
