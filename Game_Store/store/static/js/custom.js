@@ -174,100 +174,102 @@ $(document).ready(() =>
 			}
 		}
 	}
-	else if(location.indexOf("cart") !== - 1){
-		displayCart();
-		getTotal();
-		function displayCart(){
-			if(localStorage.getItem('addedGame')){
-				let gamesList = JSON.parse(localStorage.getItem('addedGame'));
-				let cart = '';
-				for(let game of gamesList){
-					cart += ` <li class="my-2">
-			                        <div class="cart-item row m-0 py-3">
-			                            <div class="cart-item-img col-12 col-sm-4 col-md-3 d-flex justify-content-center align-items-center pb-3 pb-sm-0">
-			                                <a href="single.html" class="openSingle" data-id="${game.id}"><img src="${game.image}" alt="${game.name}" class="img-fluid"></a>
-			                            </div>
-			                            <div class="col-12 col-sm-8 col-md-9 d-flex flex-column ">
-				                            <div class="cart-item-name d-flex justify-content-start flex-row">
-				                                <p class="m-0">Name:</p><a href="single.html" class="openSingle" data-id="${game.id}"><h5 class="ml-2 game-name">${game.name}</h5></a>
-				                            </div>
-				                            <div class='d-flex justify-content-start flex-row'>
-												<p class="m-0">Price:</p><h5 class="ml-2"><i class="fas fa-euro-sign"></i> ${game.price}</h5>
-											</div>
-											<div class='d-flex justify-content-start flex-row'>
-												<p class="m-0">Quantity:</p>
-												<h5 class="ml-2 mb-0">${game.quantity}</h5>
-												<button type="button" data-quantity="raise" data-id="${game.id}" class="quantityBtn"><i class="fas fa-plus"></i></button>
-												<button type="button" data-quantity="lower" data-id="${game.id}" class="quantityBtn"><i class="fas fa-minus"></i></button>
-											</div>
-											<button type="button" class="removeGame d-flex justify-content-center align-items-center" data-id='${game.id}'><i class="fas fa-trash-alt d-block"></i></button>
-			                            </div>
-			                        </div>
-			                    </li>`
-				}
-				$('#games-list').html(cart);
-			}
-			else{
-				let text = "<li class='my-2'><div class=\"cart-item col-12 pt-4\"><h5>You have no games added into your cart.</h5><a href='shop.html'><button type='button' id='sendToShop'>Shop now!</button> </a></div></li>"
-				$('#games-list').html(text);
-				$('#bag').removeClass('col-md-8');
-				$('#summary').remove();
-			}
-		}
-		$(document).on('click', '.removeGame', function () {
-			var id = $(this).data('id');
-			let allAdded = JSON.parse(localStorage.getItem('addedGame'));
-			let afterRemoving = [];
-			for(let game of allAdded){
-				if(game.id != id){
-					afterRemoving.push(game);
-				}
-			}
-			if(afterRemoving.length){
-				localStorage.setItem('addedGame', JSON.stringify(afterRemoving));
-			}
-			else{
-				localStorage.removeItem('addedGame');
-			}
-			checkCartAmount();
-			displayCart();
-			getTotal();
-		})
-		$('[data-toggle="tooltip"]').tooltip();
-		$(document).on('click', '.quantityBtn', changeQuantity);
-		function changeQuantity(){
-			const minQuantity = 1;
-			const maxQuantity = 100;
-			const quantityData = $(this).data('quantity');
-			const gameId = $(this).data('id');
-			var games = JSON.parse(localStorage.getItem('addedGame'));
-			if(quantityData == 'raise'){
-				games.forEach((game) =>{
-					if(gameId == game.id){
-						if(game.quantity < maxQuantity){
-							game.quantity++;
-						}
-					}
-				})
-			}
-			else{
-				games.forEach((game) => {
-					if(gameId == game.id){
-						if(game.quantity > minQuantity){
-							game.quantity--;
-						}
-					}
-				})
-			}
-			localStorage.setItem('addedGame', JSON.stringify(games));
-			displayCart();
-			getTotal();
-		}
-		$('#checkoutOrder').on('submit', function (e){
-			e.preventDefault();
-			proveriUnosOrder();
-		});
-	}
+
+	// Cart
+	// else if(location.indexOf("cart") !== - 1){
+	// 	displayCart();
+	// 	getTotal();
+	// 	function displayCart(){
+	// 		if(localStorage.getItem('addedGame')){
+	// 			let gamesList = JSON.parse(localStorage.getItem('addedGame'));
+	// 			let cart = '';
+	// 			for(let game of gamesList){
+	// 				cart += ` <li class="my-2">
+	// 		                        <div class="cart-item row m-0 py-3">
+	// 		                            <div class="cart-item-img col-12 col-sm-4 col-md-3 d-flex justify-content-center align-items-center pb-3 pb-sm-0">
+	// 		                                <a href="single.html" class="openSingle" data-id="${game.id}"><img src="${game.image}" alt="${game.name}" class="img-fluid"></a>
+	// 		                            </div>
+	// 		                            <div class="col-12 col-sm-8 col-md-9 d-flex flex-column ">
+	// 			                            <div class="cart-item-name d-flex justify-content-start flex-row">
+	// 			                                <p class="m-0">Name:</p><a href="single.html" class="openSingle" data-id="${game.id}"><h5 class="ml-2 game-name">${game.name}</h5></a>
+	// 			                            </div>
+	// 			                            <div class='d-flex justify-content-start flex-row'>
+	// 											<p class="m-0">Price:</p><h5 class="ml-2"><i class="fas fa-euro-sign"></i> ${game.price}</h5>
+	// 										</div>
+	// 										<div class='d-flex justify-content-start flex-row'>
+	// 											<p class="m-0">Quantity:</p>
+	// 											<h5 class="ml-2 mb-0">${game.quantity}</h5>
+	// 											<button type="button" data-quantity="raise" data-id="${game.id}" class="quantityBtn"><i class="fas fa-plus"></i></button>
+	// 											<button type="button" data-quantity="lower" data-id="${game.id}" class="quantityBtn"><i class="fas fa-minus"></i></button>
+	// 										</div>
+	// 										<button type="button" class="removeGame d-flex justify-content-center align-items-center" data-id='${game.id}'><i class="fas fa-trash-alt d-block"></i></button>
+	// 		                            </div>
+	// 		                        </div>
+	// 		                    </li>`
+	// 			}
+	// 			$('#games-list').html(cart);
+	// 		}
+	// 		else{
+	// 			let text = "<li class='my-2'><div class=\"cart-item col-12 pt-4\"><h5>You have no games added into your cart.</h5><a href='shop.html'><button type='button' id='sendToShop'>Shop now!</button> </a></div></li>"
+	// 			$('#games-list').html(text);
+	// 			$('#bag').removeClass('col-md-8');
+	// 			$('#summary').remove();
+	// 		}
+	// 	}
+	// 	$(document).on('click', '.removeGame', function () {
+	// 		var id = $(this).data('id');
+	// 		let allAdded = JSON.parse(localStorage.getItem('addedGame'));
+	// 		let afterRemoving = [];
+	// 		for(let game of allAdded){
+	// 			if(game.id != id){
+	// 				afterRemoving.push(game);
+	// 			}
+	// 		}
+	// 		if(afterRemoving.length){
+	// 			localStorage.setItem('addedGame', JSON.stringify(afterRemoving));
+	// 		}
+	// 		else{
+	// 			localStorage.removeItem('addedGame');
+	// 		}
+	// 		checkCartAmount();
+	// 		displayCart();
+	// 		getTotal();
+	// 	})
+	// 	$('[data-toggle="tooltip"]').tooltip();
+	// 	$(document).on('click', '.quantityBtn', changeQuantity);
+	// 	function changeQuantity(){
+	// 		const minQuantity = 1;
+	// 		const maxQuantity = 100;
+	// 		const quantityData = $(this).data('quantity');
+	// 		const gameId = $(this).data('id');
+	// 		var games = JSON.parse(localStorage.getItem('addedGame'));
+	// 		if(quantityData == 'raise'){
+	// 			games.forEach((game) =>{
+	// 				if(gameId == game.id){
+	// 					if(game.quantity < maxQuantity){
+	// 						game.quantity++;
+	// 					}
+	// 				}
+	// 			})
+	// 		}
+	// 		else{
+	// 			games.forEach((game) => {
+	// 				if(gameId == game.id){
+	// 					if(game.quantity > minQuantity){
+	// 						game.quantity--;
+	// 					}
+	// 				}
+	// 			})
+	// 		}
+	// 		localStorage.setItem('addedGame', JSON.stringify(games));
+	// 		displayCart();
+	// 		getTotal();
+	// 	}
+	// 	$('#checkoutOrder').on('submit', function (e){
+	// 		e.preventDefault();
+	// 		proveriUnosOrder();
+	// 	});
+	// }
 	//endregion
 	function proveriUnosOrder(){
 		let name = $("#fullname");
@@ -895,33 +897,33 @@ $(document).ready(() =>
 	
 	$(document).on('click', '#price', sendToCart);
 	$(document).on('click', '.favorite', sendToCart);
-	function sendToCart(){
-		var gameToAdd = [];
-		if(localStorage.getItem('addedGame')){
-			gameToAdd = JSON.parse(localStorage.getItem('addedGame'));
-		}
-		let gameId = $(this).data('id');
-		for(let game of allGames){
-			if(game.id == gameId){
-				if(gameToAdd.some(x => x.id == gameId)) {
-					gameToAdd.find(x => x.id == gameId).quantity++;
-					displayMessageModal(`You have ${gameToAdd.find(x => x.id == gameId).quantity} <span>${game.name}'s </span> in your cart.`)
-				}
-				else{
-					gameToAdd.push({
-						id : game.id,
-						image : game.image.logo,
-						name : game.name,
-						price : game.price.value.netPrice,
-						quantity : 1
-					})
-					displayMessageModal(`You added <span>${game.name} </span> into your cart.`)
-				}
-				localStorage.setItem('addedGame', JSON.stringify(gameToAdd));
-			}
-		}
-		checkCartAmount();
-	}
+	// function sendToCart(){
+	// 	var gameToAdd = [];
+	// 	if(localStorage.getItem('addedGame')){
+	// 		gameToAdd = JSON.parse(localStorage.getItem('addedGame'));
+	// 	}
+	// 	let gameId = $(this).data('id');
+	// 	for(let game of allGames){
+	// 		if(game.id == gameId){
+	// 			if(gameToAdd.some(x => x.id == gameId)) {
+	// 				gameToAdd.find(x => x.id == gameId).quantity++;
+	// 				displayMessageModal(`You have ${gameToAdd.find(x => x.id == gameId).quantity} <span>${game.name}'s </span> in your cart.`)
+	// 			}
+	// 			else{
+	// 				gameToAdd.push({
+	// 					id : game.id,
+	// 					image : game.image.logo,
+	// 					name : game.name,
+	// 					price : game.price.value.netPrice,
+	// 					quantity : 1
+	// 				})
+	// 				displayMessageModal(`You added <span>${game.name} </span> into your cart.`)
+	// 			}
+	// 			localStorage.setItem('addedGame', JSON.stringify(gameToAdd));
+	// 		}
+	// 	}
+	// 	checkCartAmount();
+	// }
 	//endregion
 
 	//region Filtering functions - Price - Categories - Mode - Other

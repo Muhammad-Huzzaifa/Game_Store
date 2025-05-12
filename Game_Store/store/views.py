@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
 from django.db.models import Sum, Value, IntegerField
 from django.db.models.functions import Coalesce
 from django.contrib.auth.views import LoginView
@@ -274,7 +276,77 @@ def single(request, game_id):
 @user_required
 def cart(request):
     """Renders the cart.html page."""
-    return render(request, 'store/cart.html')
+    try:
+        cart=models.Carts.objects.get(user=request.user)
+     # Get all cart items for this cart
+        cart_items = models.CartItems.objects.filter(cart=cart).select_related('game')
+
+    except models.Carts.DoesNotExist:
+        cart_items = []
+
+    return render(request, 'store/cart.html', {'cart_items': cart_items})
+    # return render(request, 'store/cart.html')
+
+
+@user_required
+def add_to_cart(request, game_id):
+    if request.method == 'GET':
+        try:
+            game = models.Games.objects.get(pk=game_id)
+
+            # Get or create cart for this user
+            cart, created = models.Carts.objects.get_or_create(user=request.user)
+
+            # Get or create cart item
+            cart_item, created = models.CartItems.objects.get_or_create(
+                cart=cart,
+                game=game,
+                defaults={'quantity': 1}
+            )
+
+            if not created:
+                # If already exists, increment quantity
+                cart_item.quantity += 1
+                cart_item.save()
+
+            return JsonResponse({'success': True, 'message': 'Game added to cart'})
+
+        except models.Games.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Game not found'})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+@require_POST
+@user_required
+def update_cart_quantity(request):
+    game_id = request.POST.get('game_id')
+    action = request.POST.get('action')
+    
+    try:
+        cart = models.Carts.objects.get(user=request.user)
+        item = models.CartItems.objects.get(cart=cart, game_id=game_id)
+        
+        if action == 'raise':
+            item.quantity += 1
+        elif action == 'lower' and item.quantity > 1:
+            item.quantity -= 1
+        
+        item.save()
+        return JsonResponse({'success': True, 'quantity': item.quantity})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_POST
+@user_required
+def remove_from_cart(request):
+    game_id = request.POST.get('game_id')
+    
+    try:
+        cart = models.Carts.objects.get(user=request.user)
+        models.CartItems.objects.get(cart=cart, game_id=game_id).delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 def contact(request):
