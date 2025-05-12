@@ -90,10 +90,10 @@
 					<p>{{ game.release_date|date:"M d, Y" }}</p>
 				</li>
 				{% endif %}
-				{% if game.genre %}
+				{% if genres %}
 				<li>
 					<h6>Genre</h6>
-					<p>{{ game.genre }}</p>
+					<p>{{ genres|join:", " }}</p>
 				</li>
 				{% endif %}
 				{% if game.platform %}

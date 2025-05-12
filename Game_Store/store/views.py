@@ -248,6 +248,7 @@ def single(request, game_id):
         
     try:
         game = models.Games.objects.get(pk=game_id, is_active=True)
+        genres = models.Genres.objects.filter(game=game).values_list('genre', flat=True)
 
         if game.discount_code:
             discount_amount = (game.price * game.discount_code.discount_percentage) / 100
@@ -260,6 +261,7 @@ def single(request, game_id):
         context = {
             'user': request.user,
             'game': game,
+            'genres': genres,
         }
         return render(request, 'store/single.html', context)
     except models.Games.DoesNotExist:
