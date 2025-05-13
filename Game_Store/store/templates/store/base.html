@@ -58,7 +58,7 @@
                             </div>
                             <nav class="navbar">
                                 <ul class="navbar_menu">
-
+                                    <li><a href="{% url 'store:index' %}">Home</a></li>
                                 </ul>
                                 <ul class="navbar_user">
                                     <li class="login">
@@ -187,12 +187,12 @@
     <script>
         const messages = [
             {% for message in messages %}
-        {
-            "text": "{{ message }}",
+            {
+                "text": "{{ message }}",
                 "tags": "{{ message.tags }}"
-        },
-        {% endfor %}
-		];
+            },
+            {% endfor %}
+        ];
     </script>
     {% endif %}
 

@@ -219,3 +219,28 @@ BEGIN
 	SELECT game_id, 0
 	FROM inserted;
 END;
+
+-- Indexes
+CREATE INDEX idx_discount_codes_code ON discount_codes(code);
+CREATE INDEX idx_discount_codes_valid_range ON discount_codes(valid_from, valid_to);
+CREATE INDEX idx_games_title ON games(title);
+CREATE INDEX idx_games_platform ON games(platform);
+CREATE INDEX idx_games_is_active ON games(is_active);
+CREATE INDEX idx_games_discount_code_id ON games(discount_code_id);
+CREATE INDEX idx_games_platform_price_active ON games(platform, price, is_active);
+CREATE INDEX idx_genres_game_id ON genres(game_id);
+CREATE INDEX idx_genres_game_genre ON genres(game_id, genre);
+CREATE INDEX idx_inventory_game_id ON inventory(game_id);
+CREATE INDEX idx_carts_user_id ON carts(user_id);
+CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX idx_cart_items_game_id ON cart_items(game_id);
+CREATE INDEX idx_cart_items_composite ON cart_items(cart_id, game_id);
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_order_date ON orders(order_date);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_order_items_game_id ON order_items(game_id);
+CREATE INDEX idx_order_items_composite ON order_items(order_id, game_id);
+CREATE INDEX idx_payments_order_id ON payments(order_id);
+CREATE INDEX idx_payments_status_method ON payments(payment_status, payment_method);

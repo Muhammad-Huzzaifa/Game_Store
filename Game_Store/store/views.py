@@ -1,15 +1,15 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.db.models import Sum, F, FloatField
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
-from django.db.models import Sum, Value, IntegerField
+from django.db.models import Sum, Value, IntegerField, F, FloatField
 from django.db.models.functions import Coalesce
 from django.contrib.auth.views import LoginView
+from django.utils import timezone
 from . import models
 from .decorators import anonymous_required, user_required
 
@@ -40,6 +40,13 @@ def check_admin_access(request):
     return None
 
 
+def is_discount_valid(discount_code):
+    """Check if a discount code is currently valid based on its time constraints."""
+    if not discount_code:
+        return False
+    return discount_code.valid_from <= timezone.now() <= discount_code.valid_to
+
+
 def index(request):
     """Renders the index.html page with new releases, hot sales, and top sellers."""
     admin_redirect = admin_check(request)
@@ -53,7 +60,8 @@ def index(request):
             release_date__isnull=False
         ).order_by('-release_date')[:4]
         for game in new_releases:
-            if game.discount_code:
+            game.discount = is_discount_valid(game.discount_code)
+            if game.discount:
                 discount_amount = (game.price * game.discount_code.discount_percentage) / 100
                 game.discounted_price = game.price - discount_amount
             else:
@@ -62,7 +70,9 @@ def index(request):
         # Hot Sales
         hot_sales = models.Games.objects.filter(
             is_active=True,
-            discount_code__isnull=False
+            discount_code__isnull=False,
+            discount_code__valid_from__lte=timezone.now(),
+            discount_code__valid_to__gte=timezone.now()
         ).annotate(
             total_sales=Coalesce(
                 Sum('orderitems__quantity'),
@@ -71,7 +81,8 @@ def index(request):
             )
         ).order_by('-total_sales')[:4]
         for game in hot_sales:
-            if game.discount_code:
+            game.discount = is_discount_valid(game.discount_code)
+            if game.discount:
                 discount_amount = (game.price * game.discount_code.discount_percentage) / 100
                 game.discounted_price = game.price - discount_amount
             else:
@@ -240,7 +251,7 @@ def shop(request):
             games = games.filter(title__icontains=search_query)
 
         sort_by = request.GET.get('sort')
-        if sort_by and sort_by != '0':  # Only apply sorting if a valid sort option is selected
+        if sort_by and sort_by != '0':
             if sort_by == 'nameASC':
                 games = games.order_by('title')
             elif sort_by == 'nameDESC':
@@ -251,7 +262,8 @@ def shop(request):
                 games = games.order_by('-price')
 
         for game in games:
-            if game.discount_code:
+            game.discount = is_discount_valid(game.discount_code)
+            if game.discount:
                 discount_amount = (game.price * game.discount_code.discount_percentage) / 100
                 game.discounted_price = game.price - discount_amount
             else:
@@ -290,8 +302,8 @@ def single(request, game_id):
     try:
         game = models.Games.objects.get(pk=game_id, is_active=True)
         genres = models.Genres.objects.filter(game=game).values_list('genre', flat=True)
-
-        if game.discount_code:
+        game.discount = is_discount_valid(game.discount_code)
+        if game.discount:
             discount_amount = (game.price * game.discount_code.discount_percentage) / 100
             game.discounted_price = game.price - discount_amount
             game.discount_percentage = game.discount_code.discount_percentage
@@ -319,14 +331,22 @@ def cart(request):
     """Renders the cart.html page."""
     try:
         cart=models.Carts.objects.get(user=request.user)
-     # Get all cart items for this cart
         cart_items = models.CartItems.objects.filter(cart=cart).select_related('game')
+
+        for item in cart_items:
+            item.game.discount = is_discount_valid(item.game.discount_code)
+            if item.game.discount:
+                discount_amount = (item.game.price * item.game.discount_code.discount_percentage) / 100
+                item.discounted_price = item.game.price - discount_amount
+                item.total = item.quantity * item.discounted_price
+            else:
+                item.discounted_price = None
+                item.total = item.quantity * item.game.price
 
     except models.Carts.DoesNotExist:
         cart_items = []
 
     return render(request, 'store/cart.html', {'cart_items': cart_items})
-    # return render(request, 'store/cart.html')
 
 
 @user_required
@@ -334,11 +354,7 @@ def add_to_cart(request, game_id):
     if request.method == 'GET':
         try:
             game = models.Games.objects.get(pk=game_id)
-
-            # Get or create cart for this user
-            cart, created = models.Carts.objects.get_or_create(user=request.user)
-
-            # Get or create cart item
+            cart, _ = models.Carts.objects.get_or_create(user=request.user)
             cart_item, created = models.CartItems.objects.get_or_create(
                 cart=cart,
                 game=game,
@@ -346,45 +362,55 @@ def add_to_cart(request, game_id):
             )
 
             if not created:
-                # If already exists, increment quantity
                 cart_item.quantity += 1
                 cart_item.save()
 
             cart_count = models.CartItems.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
-
-             # Compute total price
             total_price = models.CartItems.objects.filter(cart=cart).aggregate(
                 total=Sum(F('quantity') * F('game__price'), output_field=FloatField())
             )['total'] or 0.0
 
-
-            messages.success(request,"Game Added to cart")
-
             return JsonResponse({
                 'success': True,
-                'message': 'Game added to cart',
+                'message': 'Game successfully added to cart',
                 'cart_count': cart_count,
                 'total_price': f"{total_price:.2f}"
             })
 
         except models.Games.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Game not found'})
+            return JsonResponse({
+                'success': False, 
+                'message': 'Game not found'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error adding game to cart: {str(e)}'
+            })
     
-    
-    return JsonResponse({'success': False, 'message': 'Invalid request'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 
 @user_required
 def cart_count(request):
-    cart = models.Carts.objects.filter(user=request.user).first()
-    if not cart:
-        return JsonResponse({'cart_count': 0})
-    
-    count = models.CartItems.objects.filter(cart=cart).aggregate(
-        total=Sum('quantity')
-    )['total'] or 0
-
-    return JsonResponse({'cart_count': count})
+    try:
+        cart = models.Carts.objects.filter(user=request.user).first()
+        if not cart:
+            return JsonResponse({
+                'success': True,
+                'cart_count': 0
+            })
+        
+        count = models.CartItems.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
+        return JsonResponse({
+            'success': True,
+            'cart_count': count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error getting cart count: {str(e)}'
+        })
 
 
 @require_POST
@@ -399,13 +425,41 @@ def update_cart_quantity(request):
         
         if action == 'raise':
             item.quantity += 1
+            message = 'Item quantity increased'
         elif action == 'lower' and item.quantity > 1:
             item.quantity -= 1
+            message = 'Item quantity decreased'
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid action or minimum quantity reached'
+            })
         
         item.save()
-        return JsonResponse({'success': True, 'quantity': item.quantity})
+        
+        item.game.discount = is_discount_valid(item.game.discount_code)
+        if item.game.discount:
+            discount_amount = (item.game.price * item.game.discount_code.discount_percentage) / 100
+            discounted_price = item.game.price - discount_amount
+            item_total = item.quantity * discounted_price
+        else:
+            item_total = item.quantity * item.game.price
+        
+        cart_count = models.CartItems.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
+        
+        return JsonResponse({
+            'success': True,
+            'quantity': item.quantity,
+            'item_total': f"{item_total:.2f}",
+            'cart_count': cart_count,
+            'message': message
+        })
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({
+            'success': False,
+            'error': f'Failed to update cart quantity: {str(e)}'
+        })
+
 
 @require_POST
 @user_required
@@ -414,10 +468,27 @@ def remove_from_cart(request):
     
     try:
         cart = models.Carts.objects.get(user=request.user)
-        models.CartItems.objects.get(cart=cart, game_id=game_id).delete()
-        return JsonResponse({'success': True})
+        item = models.CartItems.objects.get(cart=cart, game_id=game_id)
+        item.delete()
+        
+        # Get updated cart count
+        cart_count = models.CartItems.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Item successfully removed from cart',
+            'cart_count': cart_count
+        })
+    except models.CartItems.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Item not found in cart'
+        })
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({
+            'success': False,
+            'error': f'Failed to remove item from cart: {str(e)}'
+        })
 
 
 def contact(request):

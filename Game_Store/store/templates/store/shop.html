@@ -125,14 +125,14 @@
 				<div class="card mb-3 col">
 					{% if user.is_authenticated %}
 					<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
-					class="favorite d-flex justify-content-center align-items-center add-to-cart">
-					<i class="fas fa-cart-plus"></i>
+						class="favorite d-flex justify-content-center align-items-center add-to-cart">
+						<i class="fas fa-cart-plus"></i>
 					</div>
 
 					{% endif %}
 					<a href="{% url 'store:single' game.game_id %}" class="openSingle" data-id="{{ game.game_id }}"
 						style="position: relative;">
-						{% if game.discount_code %}
+						{% if game.discount %}
 						<div class="ribbon"><span>SALE!</span></div>
 						{% endif %}
 						<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
@@ -142,7 +142,7 @@
 							<ul class="card-info">
 								<li class="text-muted developer">{{ game.developer }}</li>
 								<li class="price">
-									{% if game.discount_code %}
+									{% if game.discount %}
 									<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
 									<s class="text-muted"><i class="fas fa-dollar-sign"></i>{{ game.price }}</s>
 									<span><i class="fas fa-dollar-sign"></i>{{ game.discounted_price }}</span>
@@ -185,5 +185,121 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+	let debounceTimer;
+
+	function debounce(func, wait) {
+		return function () {
+			const context = this;
+			const args = arguments;
+			clearTimeout(debounceTimer);
+			debounceTimer = setTimeout(() => func.apply(context, args), wait);
+		};
+	}
+	function updateURL(params, resetPage = true) {
+		const url = new URL(window.location.href);
+		for (let key in params) {
+			if (params[key] !== null && params[key] !== undefined) {
+				url.searchParams.set(key, params[key]);
+			} else {
+				url.searchParams.delete(key);
+			}
+		}
+		if (resetPage && !('page' in params)) {
+			url.searchParams.set('page', '1');
+		}
+		window.history.replaceState({}, '', url);
+	}
+
+	function reloadProducts() {
+		const params = new URLSearchParams(window.location.search);
+		fetch(`/shop/?${params.toString()}`)
+			.then(response => response.text())
+			.then(html => {
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(html, 'text/html');
+				document.getElementById('products').innerHTML = doc.getElementById('products').innerHTML;
+				document.getElementById('pag').innerHTML = doc.getElementById('pag').innerHTML;
+			});
+	}
+
+	// Price Range Slider
+	const priceFrom = document.getElementById('priceFrom');
+	const priceTo = document.getElementById('priceTo');
+	const fromOutput = document.getElementById('from');
+	const toOutput = document.getElementById('to');
+
+	function updatePriceFilter() {
+		if (parseInt(priceTo.value) <= parseInt(priceFrom.value)) {
+			priceTo.value = parseInt(priceFrom.value) + 1;
+		}
+		fromOutput.value = priceFrom.value;
+		toOutput.value = priceTo.value;
+
+		updateURL({
+			min_price: priceFrom.value,
+			max_price: priceTo.value
+		});
+		reloadProducts();
+	}
+
+	priceFrom.addEventListener('input', debounce(updatePriceFilter, 500));
+	priceTo.addEventListener('input', debounce(updatePriceFilter, 500));
+	// Category Filters
+	document.querySelectorAll('#categoryChb input[type="checkbox"]').forEach(checkbox => {
+		checkbox.addEventListener('change', () => {
+			const selectedCategories = Array.from(document.querySelectorAll('#categoryChb input:checked'))
+				.map(cb => cb.value);
+
+			updateURL({
+				'categories[]': selectedCategories.length > 0 ? selectedCategories.join(',') : null
+			});
+			reloadProducts();
+		});
+	});
+	// Search Input
+	document.getElementById('search').addEventListener('input', debounce(function () {
+		const searchValue = this.value.trim();
+		updateURL({
+			search: searchValue || null
+		});
+		reloadProducts();
+	}, 300));
+
+	// Sort Select	
+	document.getElementById('sort').addEventListener('change', function () {
+		const params = {
+			sort: this.value === '0' ? null : this.value
+		};
+		updateURL(params);
+		reloadProducts();
+	});
+
+	// Items Per Page
+	document.getElementById('numberOfProducts').addEventListener('change', function () {
+		updateURL({
+			numberOfProducts: this.value,
+			page: 1  // Reset to first page when changing items per page
+		});
+		reloadProducts();
+	});
+
+	// Pagination
+	document.getElementById('pag').addEventListener('click', function (e) {
+		if (e.target.classList.contains('pagination-item')) {
+			const page = e.target.textContent;
+			updateURL({
+				page: page
+			});
+			reloadProducts();
+
+			// Update active state
+			document.querySelectorAll('.pagination-item').forEach(item => {
+				item.classList.remove('active-pag');
+			});
+			e.target.classList.add('active-pag');
+		}
+	});
+</script>
 <script src="{% static 'js/cart.js' %}"></script>
 {% endblock extra_js %}

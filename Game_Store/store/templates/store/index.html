@@ -31,13 +31,13 @@
 					<div class="card mb-3 col">
 						{% if user.is_authenticated %}
 						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
-							class="favorite d-flex justify-content-center align-items-center">
+							class="favorite d-flex justify-content-center align-items-center add-to-cart">
 							<i class="fas fa-cart-plus"></i>
 						</div>
 						{% endif %}
-						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
-							data-id="{{ game.game_id }}" style="position: relative;">
-							{% if game.discount_code %}
+						<a href="{% url 'store:single' game.game_id %}" class="openSingle" data-id="{{ game.game_id }}"
+							style="position: relative;">
+							{% if game.discount %}
 							<div class="ribbon"><span>SALE!</span></div>
 							{% endif %}
 							<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
@@ -47,7 +47,7 @@
 								<ul class="card-info">
 									<li class="text-muted developer">{{ game.developer }}</li>
 									<li class="price">
-										{% if game.discount_code %}
+										{% if game.discount %}
 										<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
 										<s class="text-muted"><i class="fas fa-dollar-sign"></i>{{ game.price }}</s>
 										<span><i class="fas fa-dollar-sign"></i>{{ game.discounted_price }}</span>
@@ -77,13 +77,13 @@
 					<div class="card mb-3 col">
 						{% if user.is_authenticated %}
 						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
-						class="favorite d-flex justify-content-center align-items-center add-to-cart">
-						<i class="fas fa-cart-plus"></i>
+							class="favorite d-flex justify-content-center align-items-center add-to-cart">
+							<i class="fas fa-cart-plus"></i>
 						</div>
-					{% endif %}
-						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
-							data-id="{{ game.game_id }}" style="position: relative;">
-							{% if game.discount_code %}
+						{% endif %}
+						<a href="{% url 'store:single' game.game_id %}" class="openSingle" data-id="{{ game.game_id }}"
+							style="position: relative;">
+							{% if game.discount %}
 							<div class="ribbon"><span>SALE!</span></div>
 							{% endif %}
 							<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
@@ -93,7 +93,7 @@
 								<ul class="card-info">
 									<li class="text-muted developer">{{ game.developer }}</li>
 									<li class="price">
-										{% if game.discount_code %}
+										{% if game.discount %}
 										<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
 										<s class="text-muted"><i class="fas fa-dollar-sign"></i>{{ game.price }}</s>
 										<span><i class="fas fa-dollar-sign"></i>{{ game.discounted_price }}</span>
@@ -143,13 +143,13 @@
 					<div class="card mb-3 col">
 						{% if user.is_authenticated %}
 						<div data-id="{{ game.game_id }}" data-toggle="tooltip" data-placement="top" title="Add to cart"
-							class="favorite d-flex justify-content-center align-items-center">
+							class="favorite d-flex justify-content-center align-items-center add-to-cart">
 							<i class="fas fa-cart-plus"></i>
 						</div>
 						{% endif %}
-						<a href="{% url 'store:single' game.game_id %}" class="openSingle"
-							data-id="{{ game.game_id }}" style="position: relative;">
-							{% if game.discount_code %}
+						<a href="{% url 'store:single' game.game_id %}" class="openSingle" data-id="{{ game.game_id }}"
+							style="position: relative;">
+							{% if game.discount %}
 							<div class="ribbon"><span>SALE!</span></div>
 							{% endif %}
 							<img src="{{ game.cover_image }}" alt="{{ game.title }}" class="card-img-top" width="250px"
@@ -159,7 +159,7 @@
 								<ul class="card-info">
 									<li class="text-muted developer">{{ game.developer }}</li>
 									<li class="price">
-										{% if game.discount_code %}
+										{% if game.discount %}
 										<span class="badge">-{{ game.discount_code.discount_percentage }}%</span>
 										<s class="text-muted"><i class="fas fa-dollar-sign"></i>{{ game.price }}</s>
 										<span><i class="fas fa-dollar-sign"></i>{{ game.discounted_price }}</span>

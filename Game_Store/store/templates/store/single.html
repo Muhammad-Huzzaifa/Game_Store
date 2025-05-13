@@ -41,11 +41,11 @@
 		<div class="col-12 col-sm-6 col-md-8 col-lg-9 d-flex flex-column align-items-md-end align-items-center">
 			<div class="d-flex flex-column align-items-end">
 				{% if user.is_authenticated %}
-					
-				<button class="favorite d-flex justify-content-center align-items-center add-to-cart" type="button" id="price" data-id="{{ game.game_id }}"
-					value="{{ game.discounted_price|default:game.price }}">Add to cart</button>
+				<button class="favorite d-flex justify-content-center align-items-center add-to-cart" type="button"
+					id="price" data-id="{{ game.game_id }}" value="{{ game.discounted_price|default:game.price }}">Add
+					to cart</button>
 				{% endif %}
-				{% if game.discount_code %}
+				{% if game.discount %}
 				<p class="d-flex justify-content-around align-items-center pt-3">
 					<span class="badge badge-danger">-{{ game.discount_percentage }}%</span>
 					<s class="pl-2 pr-2">
