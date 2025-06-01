@@ -84,6 +84,7 @@ CREATE TABLE payments (
 );
 
 -- Create a cart for customer after account creation
+GO
 CREATE TRIGGER trg_after_customer_insert
 ON auth_user
 AFTER INSERT
@@ -95,8 +96,10 @@ BEGIN
 	WHERE is_staff=0 
 		AND is_superuser=0;
 END;
+GO
 
 -- Update quantity of cart item when added multiple times
+GO
 CREATE TRIGGER trg_merge_cart_item
 ON cart_items
 INSTEAD OF INSERT
@@ -119,8 +122,10 @@ BEGIN
 			AND ci.game_id=i.game_id
 	);
 END;
+GO
 
 -- Create trigger for automating the order_items operations
+GO
 CREATE TRIGGER trg_order_items_insert
 ON order_items
 INSTEAD OF INSERT
@@ -182,8 +187,10 @@ BEGIN
 	) AS c
 	ON o.order_id=c.order_id;
 END;
+GO
 
 -- After insert trigger on orders
+GO
 CREATE TRIGGER trg_after_insert_order
 ON orders
 AFTER INSERT
@@ -208,8 +215,10 @@ BEGIN
 	SELECT order_id, 'Pending', 'Credit Card'
 	FROM inserted;
 END;
+GO
 
 -- Trigger on after inserting the game
+GO
 CREATE TRIGGER trg_game_after_insert
 ON games
 AFTER INSERT
@@ -219,28 +228,51 @@ BEGIN
 	SELECT game_id, 0
 	FROM inserted;
 END;
+GO
 
 -- Indexes
+GO
 CREATE INDEX idx_discount_codes_code ON discount_codes(code);
+GO
 CREATE INDEX idx_discount_codes_valid_range ON discount_codes(valid_from, valid_to);
+GO
 CREATE INDEX idx_games_title ON games(title);
+GO
 CREATE INDEX idx_games_platform ON games(platform);
+GO
 CREATE INDEX idx_games_is_active ON games(is_active);
+GO
 CREATE INDEX idx_games_discount_code_id ON games(discount_code_id);
+GO
 CREATE INDEX idx_games_platform_price_active ON games(platform, price, is_active);
+GO
 CREATE INDEX idx_genres_game_id ON genres(game_id);
+GO
 CREATE INDEX idx_genres_game_genre ON genres(game_id, genre);
+GO
 CREATE INDEX idx_inventory_game_id ON inventory(game_id);
+GO
 CREATE INDEX idx_carts_user_id ON carts(user_id);
+GO
 CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+GO
 CREATE INDEX idx_cart_items_game_id ON cart_items(game_id);
+GO
 CREATE INDEX idx_cart_items_composite ON cart_items(cart_id, game_id);
+GO
 CREATE INDEX idx_orders_user_id ON orders(user_id);
+GO
 CREATE INDEX idx_orders_order_date ON orders(order_date);
+GO
 CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_status ON orders(status);
+GO
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+GO
 CREATE INDEX idx_order_items_game_id ON order_items(game_id);
+GO
 CREATE INDEX idx_order_items_composite ON order_items(order_id, game_id);
+GO
 CREATE INDEX idx_payments_order_id ON payments(order_id);
+GO
 CREATE INDEX idx_payments_status_method ON payments(payment_status, payment_method);
+GO
