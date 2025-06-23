@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (counter && data.cart_count !== undefined) {
                 counter.textContent = data.cart_count;
             }
+            const cartTotalElement = document.getElementById('cart-total');
+            if (cartTotalElement && data.cart_total !== undefined) {
+                cartTotalElement.textContent = data.cart_total.toFixed(2);
+            }
         });
 
 
@@ -255,6 +259,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (totalElement && data.total_price !== undefined) {
                             totalElement.textContent = data.total_price;
                         }
+                        const cartTotalElement = document.getElementById('cart-total');
+                        if (cartTotalElement && data.cart_total !== undefined) {
+                            cartTotalElement.textContent = data.cart_total.toFixed(2);
+                        }
                         showMessage(data.message || 'Item added to cart successfully', 'success');
                     } else {
                         showMessage(data.message || 'Failed to add item to cart', 'error');
@@ -307,7 +315,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (counter && data.cart_count !== undefined) {
                                 counter.textContent = data.cart_count;
                             }
-                            
+                            // Update cart total in the summary
+                            const cartTotalElement = document.getElementById('cart-total');
+                            if (cartTotalElement && data.cart_total !== undefined) {
+                                cartTotalElement.textContent = data.cart_total.toFixed(2);
+                            }
                             showMessage('Cart quantity updated successfully', 'success');
                         } else {
                             location.reload();
@@ -349,6 +361,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             const counter = document.getElementById('checkout_items');
                             if (counter && data.cart_count !== undefined) {
                                 counter.textContent = data.cart_count;
+                            }
+                            // Update cart total in the summary
+                            const cartTotalElement = document.getElementById('cart-total');
+                            if (cartTotalElement && data.cart_total !== undefined) {
+                                cartTotalElement.textContent = data.cart_total.toFixed(2);
                             }
                             
                             showMessage('Item removed from cart successfully', 'success');

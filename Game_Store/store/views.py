@@ -333,7 +333,7 @@ def cart(request):
     try:
         cart=models.Carts.objects.get(user=request.user)
         cart_items = models.CartItems.objects.filter(cart=cart).select_related('game')
-        total = sum(item.game.price * item.quantity for item in cart_items)  # assumes game.price exists
+        total = 0
 
         for item in cart_items:
             item.game.discount = is_discount_valid(item.game.discount_code)
@@ -344,6 +344,7 @@ def cart(request):
             else:
                 item.discounted_price = None
                 item.total = item.quantity * item.game.price
+            total += item.total
 
     except models.Carts.DoesNotExist:
         cart_items = []
