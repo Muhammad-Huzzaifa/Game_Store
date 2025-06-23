@@ -1,0 +1,40 @@
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-control.is-valid {
+    border-color: #28a745;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+#checkout:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+#checkout:enabled {
+    background-color: #28a745;
+    border-color: #28a745;
+    cursor: pointer;
+}
+
+#checkout:enabled:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.card-icon {
+    width: 30px;
+    height: 20px;
+    display: inline-block;
+    margin-left: 5px;
+}

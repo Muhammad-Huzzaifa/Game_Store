@@ -13,6 +13,226 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+
+    //Validation
+    const form = document.getElementById('checkoutOrder');
+    const submitBtn = document.getElementById('checkout');
+    const requiredFields = form.querySelectorAll('input[required], select[required]');
+    const termsCheckbox = document.getElementById('terms');
+    
+    // Card number formatting
+    const cardInput = document.getElementById('card');
+    const cvvInput = document.getElementById('cvv');
+    const dateInput = document.getElementById('date');
+    const cardTypeSelect = document.getElementById('cardType');
+    
+    // Format card number with spaces
+    cardInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        if (formattedValue !== e.target.value) {
+            e.target.value = formattedValue;
+        }
+        validateCardNumber();
+    });
+    
+    // Format expiration date
+    dateInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        e.target.value = value;
+        validateExpirationDate();
+    });
+    
+    // CVV validation
+    cvvInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        validateCVV();
+    });
+    
+    // ZIP code validation
+    document.getElementById('zipcode').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9-]/g, '');
+    });
+    
+    // Real-time validation for all fields
+    requiredFields.forEach(field => {
+        field.addEventListener('input', validateForm);
+        field.addEventListener('blur', function() {
+            validateField(field);
+        });
+    });
+    
+    termsCheckbox.addEventListener('change', validateForm);
+    cardTypeSelect.addEventListener('change', validateForm);
+    
+    function validateField(field) {
+        const fieldName = field.name;
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Remove previous validation classes
+        field.classList.remove('is-valid', 'is-invalid');
+        
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+            errorMessage = 'This field is required.';
+        } else if (value) {
+            switch (fieldName) {
+                case 'email':
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid email address.';
+                    }
+                    break;
+                case 'card':
+                    if (!validateCardNumber()) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid card number.';
+                    }
+                    break;
+                case 'cvv':
+                    if (!validateCVV()) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid CVV.';
+                    }
+                    break;
+                case 'date':
+                    if (!validateExpirationDate()) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid expiration date (MM/YY).';
+                    }
+                    break;
+                case 'zipcode':
+                    if (value.length < 5) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid ZIP code.';
+                    }
+                    break;
+            }
+        }
+        
+        // Apply validation styling
+        if (isValid && value) {
+            field.classList.add('is-valid');
+        } else if (!isValid) {
+            field.classList.add('is-invalid');
+        }
+        
+        // Show error message
+        const errorElement = document.getElementById(fieldName + '-error');
+        if (errorElement) {
+            errorElement.textContent = errorMessage;
+        }
+        
+        return isValid;
+    }
+    
+    function validateCardNumber() {
+        const cardNumber = cardInput.value.replace(/\s/g, '');
+        const cardType = cardTypeSelect.value;
+        
+        if (cardNumber.length < 13 || cardNumber.length > 19) {
+            return false;
+        }
+        
+        // Basic Luhn algorithm check
+        let sum = 0;
+        let isEven = false;
+        for (let i = cardNumber.length - 1; i >= 0; i--) {
+            let digit = parseInt(cardNumber.charAt(i), 10);
+            if (isEven) {
+                digit *= 2;
+                if (digit > 9) {
+                    digit -= 9;
+                }
+            }
+            sum += digit;
+            isEven = !isEven;
+        }
+        
+        return sum % 10 === 0;
+    }
+    
+    function validateCVV() {
+        const cvv = cvvInput.value;
+        const cardType = cardTypeSelect.value;
+        
+        if (cardType === 'amex') {
+            return cvv.length === 4;
+        } else {
+            return cvv.length === 3;
+        }
+    }
+    
+    function validateExpirationDate() {
+        const date = dateInput.value;
+        if (!/^\d{2}\/\d{2}$/.test(date)) {
+            return false;
+        }
+        
+        const [month, year] = date.split('/').map(num => parseInt(num, 10));
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear() % 100;
+        const currentMonth = currentDate.getMonth() + 1;
+        
+        if (month < 1 || month > 12) {
+            return false;
+        }
+        
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function validateForm() {
+        let allValid = true;
+        
+        // Check all required fields
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                allValid = false;
+            } else {
+                // Run specific validation for each field
+                if (!validateField(field)) {
+                    allValid = false;
+                }
+            }
+        });
+        
+        // Check terms checkbox
+        if (!termsCheckbox.checked) {
+            allValid = false;
+        }
+        
+        // Enable/disable submit button
+        submitBtn.disabled = !allValid;
+        
+        return allValid;
+    }
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            alert('Please fill in all required fields correctly.');
+            return false;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+    });
+    
+    // Initial validation
+    validateForm();
+});
     // Add to cart functionality
     const buttons = document.querySelectorAll('.add-to-cart');
 
@@ -46,6 +266,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+
+    
     // Update cart quantity
     const csrfToken = document.getElementById("csrf-token")?.value;
 
@@ -148,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
-});
+
 
 
 // function displayMessageModal(text) {
