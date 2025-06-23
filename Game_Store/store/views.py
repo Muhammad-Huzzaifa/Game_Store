@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from decimal import Decimal
 from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -332,6 +333,7 @@ def cart(request):
     try:
         cart=models.Carts.objects.get(user=request.user)
         cart_items = models.CartItems.objects.filter(cart=cart).select_related('game')
+        total = sum(item.game.price * item.quantity for item in cart_items)  # assumes game.price exists
 
         for item in cart_items:
             item.game.discount = is_discount_valid(item.game.discount_code)
@@ -346,8 +348,57 @@ def cart(request):
     except models.Carts.DoesNotExist:
         cart_items = []
 
-    return render(request, 'store/cart.html', {'cart_items': cart_items})
+    return render(request, 'store/cart.html', {'cart_items': cart_items,'cart_total':total})
 
+
+# Place order
+@user_required
+def place_order(request):
+    if request.method=='POST':
+        # Get cart
+        try:
+            cart = models.Carts.objects.get(user=request.user)
+        except models.Carts.DoesNotExist:
+            messages.error(request, "No items in cart.")
+            return redirect('store:cart')
+        messages.success(request, 'Order placed successfully!')
+
+        cart_items = models.CartItems.objects.filter(cart=cart)
+        if not cart_items.exists():
+            messages.warning(request, "Your cart is empty.")
+            return redirect('store:cart')
+
+            
+        
+        # Create the order
+        order = models.Orders.objects.create(
+            user=request.user,
+            order_date=timezone.now(),
+            total_amount=Decimal('0.00'),
+            status='Processing'
+        )
+        payment_method = request.POST.get('payment_method', 'Credit Card')
+
+        models.Payments.objects.update_or_create(
+            order=order,
+            defaults={
+                'payment_status': 'Completed',
+                'payment_method': payment_method
+            }
+        )
+
+        
+        # Delete items in cart
+        cart_items.delete()
+
+        # Success message
+        messages.success(request, f"Order #{order.order_id} placed successfully!")
+
+        return redirect('store:shop')  # or 'store:index' or 'store:shop'
+
+
+    else:
+        return redirect('store:index')
 
 @user_required
 def add_to_cart(request, game_id):
