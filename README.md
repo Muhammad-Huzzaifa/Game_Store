@@ -54,11 +54,11 @@ The application connects to an Azure SQL Database. You need to install the ODBC 
    ```
    DB_ENGINE=mssql
    DB_NAME=your-database-name
-   DB_USER=your-username
-   DB_PASSWORD=your-password
-   DB_HOST=your-server.database.windows.net
+   DB_USER=your-username (may be empty in case of localhost)
+   DB_PASSWORD=your-password (may be empty in case of localhost)
+   DB_HOST=your-server.database.windows.net (in case of localhost it looks like localhost/SQLEXPRESS)
    DB_PORT=
-   DB_DRIVER=ODBC Driver 18 for SQL Server
+   DB_DRIVER=ODBC Driver 17/18 for SQL Server
    DB_EXTRA_PARAMS=Encrypt=yes;TrustServerCertificate=yes; # You can use TrustServerCertificate=yes in development and TrustServerCertificate=no in in production.
    ```
 
